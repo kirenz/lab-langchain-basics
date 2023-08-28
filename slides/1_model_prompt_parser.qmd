@@ -1,0 +1,604 @@
+---
+title: Models, Prompts and Output Parsers
+title-slide-attributes:
+  data-background-image: ../images/logo.png
+  data-background-size: contain
+  data-background-opacity: "0.5"
+lang: en
+subtitle: LangChain Basics 1
+author: Jan Kirenz
+execute:
+  eval: false
+  echo: true
+highlight-style: github
+format:
+  revealjs: 
+    toc: true
+    toc-depth: 1
+    embed-resources: false
+    theme: [dark, ../custom.scss]  
+    incremental: true
+    transition: slide
+    background-transition: fade
+    transition-speed: slow
+    code-copy: true
+    code-line-numbers: true
+    smaller: false
+    scrollable: true
+    slide-number: c
+    preview-links: auto
+    chalkboard: 
+      buttons: false
+   # logo: ../images/logo.png
+    footer: Jan Kirenz
+---
+
+# LangChain: Models, Prompts and Output Parsers
+
+* Direct API calls to OpenAI
+* API calls through LangChain:
+    * Prompts
+    * Models
+    * Output parsers
+
+# Setup
+
+## Python
+
+
+```{python}
+
+from langchain.output_parsers import StructuredOutputParser
+from langchain.output_parsers import ResponseSchema
+from langchain.prompts import ChatPromptTemplate
+from langchain.chat_models import ChatOpenAI
+import datetime
+import os
+import openai
+
+from dotenv import load_dotenv, find_dotenv
+_ = load_dotenv(find_dotenv())  # read local .env file
+openai.api_key = os.environ['OPENAI_API_KEY']
+```
+
+
+
+# Chat API: OpenAI
+
+## Helper function: get_completion
+
+- Let's start with a direct API calls to OpenAI.
+
+. . .
+
+```{python}
+
+llm_model = "gpt-3.5-turbo"
+
+
+def get_completion(prompt, model=llm_model):
+    messages = [{"role": "user", "content": prompt}]
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=messages,
+        temperature=0,
+    )
+    return response.choices[0].message["content"]
+
+
+```
+
+## Example
+
+```{python}
+
+get_completion("What is 1+1?")
+```
+
+- '1+1 equals 2.'
+
+## Customer Email
+
+```{python}
+
+customer_email = """
+Arrr, I be fuming that me blender lid \
+flew off and splattered me kitchen walls \
+with smoothie! And to make matters worse,\
+the warranty don't cover the cost of \
+cleaning up me kitchen. I need yer help \
+right now, matey!
+"""
+```
+
+## Prompt
+
+```{python}
+
+style = """American English \
+in a calm and respectful tone
+"""
+```
+
+. . .
+
+```{python}
+
+prompt = f"""Translate the text \
+that is delimited by triple backticks 
+into a style that is {style}.
+text: ```{customer_email}```
+"""
+```
+
+## Result
+
+```{python}
+response = get_completion(prompt)
+```
+
+. . .
+
+```{python}
+response
+```
+
+-' I am quite frustrated that my blender lid flew off and made a mess of my kitchen walls with smoothie! To add to my frustration, the warranty does not cover the cost of cleaning up my kitchen. I kindly request your assistance at this moment, my friend.'
+
+
+# Chat API: LangChain
+
+Let's try how we can do the same using LangChain.
+
+## Model
+
+```{python}
+# To control the randomness and creativity of the generated
+# text by an LLM, use temperature = 0.0
+chat = ChatOpenAI(temperature=0.0, model=llm_model)
+chat
+```
+
+- ChatOpenAI(cache=None, verbose=False, callbacks=None, callback_manager=None, tags=None, metadata=None, client=<class 'openai.api_resources.chat_completion.ChatCompletion'>, model_name='gpt-3.5-turbo', temperature=0.0, model_kwargs={}, openai_api_key='xxx', openai_api_base='', openai_organization='xxx', openai_proxy='', request_timeout=None, max_retries=6, streaming=False, n=1, max_tokens=None, tiktoken_model_name=None)
+
+## Define prompt template
+
+```{python}
+template_string = """Translate the text \
+that is delimited by triple backticks \
+into a style that is {style}. \
+text: ```{text}```
+"""
+```
+
+. . .
+
+```{python}
+prompt_template = ChatPromptTemplate.from_template(template_string)
+```
+
+## Inspect prompt template
+
+```{python}
+prompt_template.messages[0].prompt
+```
+
+- PromptTemplate(input_variables=['style', 'text'], output_parser=None, partial_variables={}, template='Translate the text that is delimited by triple backticks into a style that is {style}. text: ```{text}```\n', template_format='f-string', validate_template=True)
+
+. . .
+
+```{python}
+prompt_template.messages[0].prompt.input_variables
+```
+
+- ['style', 'text']
+
+## Customer template input
+
+- Text:
+
+. . .
+
+```{python}
+
+customer_email = """
+Arrr, I be fuming that me blender lid \
+flew off and splattered me kitchen walls \
+with smoothie! And to make matters worse, \
+the warranty don't cover the cost of \
+cleaning up me kitchen. I need yer help \
+right now, matey!
+"""
+```
+
+- Style:
+
+. . .
+
+```{python}
+customer_style = """American English \
+in a calm and respectful tone
+"""
+```
+
+## Create template
+
+
+```{python}
+customer_messages = prompt_template.format_messages(
+    style=customer_style,
+    text=customer_email)
+```
+
+. . .
+
+```{python}
+print(type(customer_messages))
+print(type(customer_messages[0]))
+```
+
+- <class 'list'>
+- <class 'langchain.schema.messages.HumanMessage'>
+
+
+## Customer messages prompt
+
+```{python}
+print(customer_messages[0])
+```
+
+- content="Translate the text that is delimited by triple backticks into a style that is American English in a calm and respectful tone\n. text: ```\nArrr, I be fuming that me blender lid flew off and splattered me kitchen walls with smoothie! And to make matters worse, the warranty don't cover the cost of cleaning up me kitchen. I need yer help right now, matey!\n```\n" additional_kwargs={} example=False
+
+
+## Customer messages response 
+
+```{python}
+# Call the LLM to translate to the style of the customer message
+customer_response = chat(customer_messages)
+```
+
+. . .
+
+```{python}
+print(customer_response.content)
+```
+
+
+- I'm really frustrated that my blender lid flew off and made a mess of my kitchen walls with smoothie! And to make things even worse, the warranty doesn't cover the cost of cleaning up my kitchen. I could really use your help right now, my friend!
+
+## Service reply input
+
+```{python}
+
+service_reply = """Hey there customer, \
+the warranty does not cover \
+cleaning expenses for your kitchen \
+because it's your fault that \
+you misused your blender \
+by forgetting to put the lid on before \
+starting the blender. \
+Tough luck! See ya!
+"""
+```
+
+. . .
+
+```{python}
+
+service_style_pirate = """\
+a polite tone \
+that speaks in English Pirate\
+"""
+```
+
+## Service reply prompt template {.smaller}
+
+```{python}
+service_messages = prompt_template.format_messages(
+    style=service_style_pirate,
+    text=service_reply)
+
+print(service_messages[0].content)
+```
+
+
+- Translate the text that is delimited by triple backticks into a style that is a polite tone that speaks in English Pirate. text: \```Hey there customer, the warranty does not cover cleaning expenses for your kitchen because it's your fault that you misused your blender by forgetting to put the lid on before starting the blender. Tough luck! See ya!
+\```
+
+## Service reply response
+
+```{python}
+
+service_response = chat(service_messages)
+print(service_response.content)
+```
+
+- Ahoy there, matey! I regret to inform ye that the warranty be not coverin' the costs o' cleanin' yer galley, as 'tis yer own fault fer misusin' yer blender by forgettin' to secure the lid afore startin' it. Aye, tough luck, me heartie! Fare thee well!
+
+
+# Output Parsers
+
+## Output style
+
+- Let's start with defining how we would like the LLM output to look like:
+
+. . .
+
+```{python}
+
+{
+    "gift": False,
+    "delivery_days": 5,
+    "price_value": "pretty affordable!"
+}
+```
+
+## Customer review and template {.smaller}
+
+```{python}
+
+customer_review = """\
+This leaf blower is pretty amazing.  It has four settings:\
+candle blower, gentle breeze, windy city, and tornado. \
+It arrived in two days, just in time for my wife's \
+anniversary present. \
+I think my wife liked it so much she was speechless. \
+So far I've been the only one using it, and I've been \
+using it every other morning to clear the leaves on our lawn. \
+It's slightly more expensive than the other leaf blowers \
+out there, but I think it's worth it for the extra features.
+"""
+
+review_template = """\
+For the following text, extract the following information:
+
+gift: Was the item purchased as a gift for someone else? \
+Answer True if yes, False if not or unknown.
+
+delivery_days: How many days did it take for the product \
+to arrive? If this information is not found, output -1.
+
+price_value: Extract any sentences about the value or price,\
+and output them as a comma separated Python list.
+
+Format the output as JSON with the following keys:
+gift
+delivery_days
+price_value
+
+text: {text}
+"""
+```
+
+## Prompt template
+
+```{python}
+prompt_template = ChatPromptTemplate.from_template(review_template)
+print(prompt_template)
+```
+
+- input_variables=['text'] output_parser=None partial_variables={} messages=[HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=['text'], output_parser=None, partial_variables={}, template='For the following text, extract the following information:\ngift: Was the item purchased as a gift for someone else? Answer True if yes, False if not or unknown.\ndelivery_days: How many days did it take for the product to arrive? If this information is not found, output -1.\nprice_value: Extract any sentences about the value or price,and output them as a comma separated Python list.\nFormat the output as JSON with the following keys:\ngift\ndelivery_days\nprice_value\ntext: {text}\n', template_format='f-string', validate_template=True), additional_kwargs={})]
+
+
+## Response {.smaller}
+
+```{python}
+messages = prompt_template.format_messages(text=customer_review)
+chat = ChatOpenAI(temperature=0.0, model=llm_model)
+response = chat(messages)
+print(response.content)
+```
+
+```markdown
+
+{
+  "gift": false,
+  "delivery_days": 2,
+  "price_value": ["It's slightly more expensive than the other leaf blowers out there, but I think it's worth it for the extra features."],
+  "text": "This leaf blower is pretty amazing. It has four settings:candle blower, gentle breeze, windy city, and tornado. It arrived in two days, just in time for my wife's anniversary present. I think my wife liked it so much she was speechless. So far I've been the only one using it, and I've been using it every other morning to clear the leaves on our lawn. It's slightly more expensive than the other leaf blowers out there, but I think it's worth it for the extra features."
+}
+```
+
+## Inspect response
+
+
+```{python}
+type(response.content)
+```
+
+- str
+
+. . .
+
+```{python}
+# You will get an error by running this line of code
+# because'gift' is not a dictionary
+# 'gift' is a string
+response.content.get('gift')
+```
+
+
+```{python}
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+/Users/jankirenz/labs/lab-langchain-basics/slides/1_model_prompt_parser.qmd in line 1
+----> 342 response.content.get('gift')
+
+AttributeError: 'str' object has no attribute 'get'
+```
+
+
+# Parse Output into Dictionary
+
+## Parse output into dictionary {.smaller}
+
+- Parse the LLM output string into a Python dictionary
+
+. . .
+
+```{python}
+
+gift_schema = ResponseSchema(name="gift",
+                             description="Was the item purchased\
+                             as a gift for someone else? \
+                             Answer True if yes,\
+                             False if not or unknown.")
+
+delivery_days_schema = ResponseSchema(name="delivery_days",
+                                      description="How many days\
+                                      did it take for the product\
+                                      to arrive? If this \
+                                      information is not found,\
+                                      output -1.")
+
+price_value_schema = ResponseSchema(name="price_value",
+                                    description="Extract any\
+                                    sentences about the value or \
+                                    price, and output them as a \
+                                    comma separated Python list.")
+
+response_schemas = [gift_schema,
+                    delivery_days_schema,
+                    price_value_schema]
+```
+
+## StructuredOutputParser {.smaller}
+
+```{python}
+output_parser = StructuredOutputParser.from_response_schemas(response_schemas)
+```
+
+. . .
+
+```{python}
+format_instructions = output_parser.get_format_instructions()
+```
+
+```{python}
+print(format_instructions)
+```
+
+- The output should be a markdown code snippet formatted in the following schema, including the leading and trailing "```json" and "```":
+
+```json
+{
+	"gift": string  // Was the item purchased                             as a gift for someone else?                              Answer True if yes,                             False if not or unknown.
+	"delivery_days": string  // How many days                                      did it take for the product                                      to arrive? If this                                       information is not found,                                      output -1.
+	"price_value": string  // Extract any                                    sentences about the value or                                     price, and output them as a                                     comma separated Python list.
+}
+```
+
+
+
+## Review template 2
+
+
+```{python}
+review_template_2 = """\
+For the following text, extract the following information:
+
+gift: Was the item purchased as a gift for someone else? \
+Answer True if yes, False if not or unknown.
+
+delivery_days: How many days did it take for the product\
+to arrive? If this information is not found, output -1.
+
+price_value: Extract any sentences about the value or price,\
+and output them as a comma separated Python list.
+
+text: {text}
+
+{format_instructions}
+"""
+
+prompt = ChatPromptTemplate.from_template(template=review_template_2)
+
+messages = prompt.format_messages(text=customer_review,
+                                  format_instructions=format_instructions)
+```
+
+## Inspect template
+
+```{python}
+print(messages[0].content)
+```
+
+
+- For the following text, extract the following information:
+gift: Was the item purchased as a gift for someone else? Answer True if yes, False if not or unknown.
+delivery_days: How many days did it take for the productto arrive? If this information is not found, output -1.
+price_value: Extract any sentences about the value or price,and output them as a comma separated Python list.
+text: This leaf blower is pretty amazing.  It has four settings:candle blower, gentle breeze, windy city, and tornado. It arrived in two days, just in time for my wife's anniversary present. I think my wife liked it so much she was speechless. So far I've been the only one using it, and I've been using it every other morning to clear the leaves on our lawn. It's slightly more expensive than the other leaf blowers out there, but I think it's worth it for the extra features.
+
+The output should be a markdown code snippet formatted in the following schema, including the leading and trailing "```json" and "```":
+
+```json
+{
+	"gift": string  // Was the item purchased                             as a gift for someone else?                              Answer True if yes,                             False if not or unknown.
+	"delivery_days": string  // How many days                                      did it take for the product                                      to arrive? If this                                       information is not found,                                      output -1.
+	"price_value": string  // Extract any                                    sentences about the value or                                     price, and output them as a                                     comma separated Python list.
+}
+```
+
+
+## Response
+
+```{python}
+response = chat(messages)
+```
+
+. . .
+
+```{python}
+print(response.content)
+```
+
+. . .
+
+```json
+{
+	"gift": false,
+	"delivery_days": "2",
+	"price_value": "It's slightly more expensive than the other leaf blowers out there, but I think it's worth it for the extra features."
+}
+```
+
+## Parse output {.smaller}
+
+```{python}
+output_dict = output_parser.parse(response.content)
+```
+
+. . . 
+
+```{python}
+output_dict
+```
+
+. . .
+
+```json
+{'gift': False,
+ 'delivery_days': '2',
+ 'price_value': "It's slightly more expensive than the other leaf blowers out there, but I think it's worth it for the extra features."}
+```
+
+
+```{python}
+type(output_dict)
+```
+
+- dict
+
+```{python}
+output_dict.get('delivery_days')
+```
+
+- 2
+
+
+# What's next? {background-image="../images/logo.png" background-opacity="0.5"}
+
+- **Congratulations! You have completed this tutorial** 👍
+
+**Next, you may want to go back to the [lab's website](https://kirenz.github.io/langchain-basics/)**
