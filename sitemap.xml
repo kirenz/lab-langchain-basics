@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://github.com/kirenz/lab-template/requirements.html</loc>
-    <lastmod>2023-08-28T07:11:06.462Z</lastmod>
+    <loc>https://github.com/kirenz/lab-langchain-basics/requirements.html</loc>
+    <lastmod>2023-08-28T08:24:37.211Z</lastmod>
   </url>
   <url>
-    <loc>https://github.com/kirenz/lab-template/code/notebook.html</loc>
-    <lastmod>2023-08-28T07:11:05.226Z</lastmod>
+    <loc>https://github.com/kirenz/lab-langchain-basics/code/notebook.html</loc>
+    <lastmod>2023-08-28T08:24:35.211Z</lastmod>
   </url>
   <url>
-    <loc>https://github.com/kirenz/lab-template/assignments.html</loc>
-    <lastmod>2023-08-28T07:11:04.474Z</lastmod>
+    <loc>https://github.com/kirenz/lab-langchain-basics/assignments.html</loc>
+    <lastmod>2023-08-28T08:24:34.527Z</lastmod>
   </url>
   <url>
-    <loc>https://github.com/kirenz/lab-template/slide.html</loc>
-    <lastmod>2023-08-28T07:11:03.730Z</lastmod>
+    <loc>https://github.com/kirenz/lab-langchain-basics/slide.html</loc>
+    <lastmod>2023-08-28T08:24:33.823Z</lastmod>
   </url>
   <url>
-    <loc>https://github.com/kirenz/lab-template/index.html</loc>
-    <lastmod>2023-08-28T07:11:04.850Z</lastmod>
+    <loc>https://github.com/kirenz/lab-langchain-basics/index.html</loc>
+    <lastmod>2023-08-28T08:24:34.895Z</lastmod>
   </url>
   <url>
-    <loc>https://github.com/kirenz/lab-template/slides/slides.html</loc>
-    <lastmod>2023-08-28T07:11:05.706Z</lastmod>
+    <loc>https://github.com/kirenz/lab-langchain-basics/slides/slides.html</loc>
+    <lastmod>2023-08-28T08:24:36.591Z</lastmod>
   </url>
 </urlset>
