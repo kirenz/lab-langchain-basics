@@ -7,6 +7,223 @@
     "text": "To start this lab, you’ll need the following environments:\n\n\n\n\n\n\nImportant\n\n\n\nVisit the “Programming Toolkit-webpage” to learn how to meet all requirements.\n\n\n\nSQL: MySQL, MySQL Workbench and a database called db_data\nPython: Anaconda, Anaconda Environment lab and Visual Studio Code\nEnvironment: A folder on your machine called competitive and an environment file with your MySQL password"
   },
   {
+    "objectID": "slides/1_model_prompt_parser.html#python",
+    "href": "slides/1_model_prompt_parser.html#python",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Python",
+    "text": "Python\n\nfrom langchain.output_parsers import StructuredOutputParser\nfrom langchain.output_parsers import ResponseSchema\nfrom langchain.prompts import ChatPromptTemplate\nfrom langchain.chat_models import ChatOpenAI\nimport datetime\nimport os\nimport openai\n\nfrom dotenv import load_dotenv, find_dotenv\n_ = load_dotenv(find_dotenv())  # read local .env file\nopenai.api_key = os.environ['OPENAI_API_KEY']"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#helper-function-get_completion",
+    "href": "slides/1_model_prompt_parser.html#helper-function-get_completion",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Helper function: get_completion",
+    "text": "Helper function: get_completion\n\nLet’s start with a direct API calls to OpenAI.\n\n\n\nllm_model = \"gpt-3.5-turbo\"\n\n\ndef get_completion(prompt, model=llm_model):\n    messages = [{\"role\": \"user\", \"content\": prompt}]\n    response = openai.ChatCompletion.create(\n        model=model,\n        messages=messages,\n        temperature=0,\n    )\n    return response.choices[0].message[\"content\"]"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#example",
+    "href": "slides/1_model_prompt_parser.html#example",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Example",
+    "text": "Example\n\nget_completion(\"What is 1+1?\")\n\n\n‘1+1 equals 2.’"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#customer-email",
+    "href": "slides/1_model_prompt_parser.html#customer-email",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Customer Email",
+    "text": "Customer Email\n\ncustomer_email = \"\"\"\nArrr, I be fuming that me blender lid \\\nflew off and splattered me kitchen walls \\\nwith smoothie! And to make matters worse,\\\nthe warranty don't cover the cost of \\\ncleaning up me kitchen. I need yer help \\\nright now, matey!\n\"\"\""
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#prompt",
+    "href": "slides/1_model_prompt_parser.html#prompt",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Prompt",
+    "text": "Prompt\n\nstyle = \"\"\"American English \\\nin a calm and respectful tone\n\"\"\"\n\n\n\nprompt = f\"\"\"Translate the text \\\nthat is delimited by triple backticks \ninto a style that is {style}.\ntext: ```{customer_email}```\n\"\"\""
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#result",
+    "href": "slides/1_model_prompt_parser.html#result",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Result",
+    "text": "Result\n\nresponse = get_completion(prompt)\n\n\n\nresponse\n\n-’ I am quite frustrated that my blender lid flew off and made a mess of my kitchen walls with smoothie! To add to my frustration, the warranty does not cover the cost of cleaning up my kitchen. I kindly request your assistance at this moment, my friend.’"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#model",
+    "href": "slides/1_model_prompt_parser.html#model",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Model",
+    "text": "Model\n\n# To control the randomness and creativity of the generated\n# text by an LLM, use temperature = 0.0\nchat = ChatOpenAI(temperature=0.0, model=llm_model)\nchat\n\n\nChatOpenAI(cache=None, verbose=False, callbacks=None, callback_manager=None, tags=None, metadata=None, client=&lt;class ‘openai.api_resources.chat_completion.ChatCompletion’&gt;, model_name=‘gpt-3.5-turbo’, temperature=0.0, model_kwargs={}, openai_api_key=‘xxx’, openai_api_base=’‘, openai_organization=’xxx’, openai_proxy=’’, request_timeout=None, max_retries=6, streaming=False, n=1, max_tokens=None, tiktoken_model_name=None)"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#define-prompt-template",
+    "href": "slides/1_model_prompt_parser.html#define-prompt-template",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Define prompt template",
+    "text": "Define prompt template\n\ntemplate_string = \"\"\"Translate the text \\\nthat is delimited by triple backticks \\\ninto a style that is {style}. \\\ntext: ```{text}```\n\"\"\"\n\n\n\nprompt_template = ChatPromptTemplate.from_template(template_string)"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#inspect-prompt-template",
+    "href": "slides/1_model_prompt_parser.html#inspect-prompt-template",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Inspect prompt template",
+    "text": "Inspect prompt template\n\nprompt_template.messages[0].prompt\n\n\nPromptTemplate(input_variables=[‘style’, ‘text’], output_parser=None, partial_variables={}, template=‘Translate the text that is delimited by triple backticks into a style that is {style}. text: {text}’, template_format=‘f-string’, validate_template=True)\n\n\n\nprompt_template.messages[0].prompt.input_variables\n\n\n[‘style’, ‘text’]"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#customer-template-input",
+    "href": "slides/1_model_prompt_parser.html#customer-template-input",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Customer template input",
+    "text": "Customer template input\n\nText:\n\n\n\ncustomer_email = \"\"\"\nArrr, I be fuming that me blender lid \\\nflew off and splattered me kitchen walls \\\nwith smoothie! And to make matters worse, \\\nthe warranty don't cover the cost of \\\ncleaning up me kitchen. I need yer help \\\nright now, matey!\n\"\"\"\n\n\nStyle:\n\n\n\n\ncustomer_style = \"\"\"American English \\\nin a calm and respectful tone\n\"\"\""
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#create-template",
+    "href": "slides/1_model_prompt_parser.html#create-template",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Create template",
+    "text": "Create template\n\ncustomer_messages = prompt_template.format_messages(\n    style=customer_style,\n    text=customer_email)\n\n\n\nprint(type(customer_messages))\nprint(type(customer_messages[0]))\n\n\n&lt;class ‘list’&gt;\n&lt;class ‘langchain.schema.messages.HumanMessage’&gt;"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#customer-messages-prompt",
+    "href": "slides/1_model_prompt_parser.html#customer-messages-prompt",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Customer messages prompt",
+    "text": "Customer messages prompt\n\nprint(customer_messages[0])\n\n\ncontent=“Translate the text that is delimited by triple backticks into a style that is American English in a calm and respectful tone. text: \\nArrr, I be fuming that me blender lid flew off and splattered me kitchen walls with smoothie! And to make matters worse, the warranty don't cover the cost of cleaning up me kitchen. I need yer help right now, matey!\\n” additional_kwargs={} example=False"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#customer-messages-response",
+    "href": "slides/1_model_prompt_parser.html#customer-messages-response",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Customer messages response",
+    "text": "Customer messages response\n\n# Call the LLM to translate to the style of the customer message\ncustomer_response = chat(customer_messages)\n\n\n\nprint(customer_response.content)\n\n\nI’m really frustrated that my blender lid flew off and made a mess of my kitchen walls with smoothie! And to make things even worse, the warranty doesn’t cover the cost of cleaning up my kitchen. I could really use your help right now, my friend!"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#service-reply-input",
+    "href": "slides/1_model_prompt_parser.html#service-reply-input",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Service reply input",
+    "text": "Service reply input\n\nservice_reply = \"\"\"Hey there customer, \\\nthe warranty does not cover \\\ncleaning expenses for your kitchen \\\nbecause it's your fault that \\\nyou misused your blender \\\nby forgetting to put the lid on before \\\nstarting the blender. \\\nTough luck! See ya!\n\"\"\"\n\n\n\nservice_style_pirate = \"\"\"\\\na polite tone \\\nthat speaks in English Pirate\\\n\"\"\""
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#service-reply-prompt-template",
+    "href": "slides/1_model_prompt_parser.html#service-reply-prompt-template",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Service reply prompt template",
+    "text": "Service reply prompt template\n\nservice_messages = prompt_template.format_messages(\n    style=service_style_pirate,\n    text=service_reply)\n\nprint(service_messages[0].content)\n\n\nTranslate the text that is delimited by triple backticks into a style that is a polite tone that speaks in English Pirate. text: ```Hey there customer, the warranty does not cover cleaning expenses for your kitchen because it’s your fault that you misused your blender by forgetting to put the lid on before starting the blender. Tough luck! See ya! ```"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#service-reply-response",
+    "href": "slides/1_model_prompt_parser.html#service-reply-response",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Service reply response",
+    "text": "Service reply response\n\nservice_response = chat(service_messages)\nprint(service_response.content)\n\n\nAhoy there, matey! I regret to inform ye that the warranty be not coverin’ the costs o’ cleanin’ yer galley, as ‘tis yer own fault fer misusin’ yer blender by forgettin’ to secure the lid afore startin’ it. Aye, tough luck, me heartie! Fare thee well!"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#output-style",
+    "href": "slides/1_model_prompt_parser.html#output-style",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Output style",
+    "text": "Output style\n\nLet’s start with defining how we would like the LLM output to look like:\n\n\n\n{\n    \"gift\": False,\n    \"delivery_days\": 5,\n    \"price_value\": \"pretty affordable!\"\n}"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#customer-review-and-template",
+    "href": "slides/1_model_prompt_parser.html#customer-review-and-template",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Customer review and template",
+    "text": "Customer review and template\n\ncustomer_review = \"\"\"\\\nThis leaf blower is pretty amazing.  It has four settings:\\\ncandle blower, gentle breeze, windy city, and tornado. \\\nIt arrived in two days, just in time for my wife's \\\nanniversary present. \\\nI think my wife liked it so much she was speechless. \\\nSo far I've been the only one using it, and I've been \\\nusing it every other morning to clear the leaves on our lawn. \\\nIt's slightly more expensive than the other leaf blowers \\\nout there, but I think it's worth it for the extra features.\n\"\"\"\n\nreview_template = \"\"\"\\\nFor the following text, extract the following information:\n\ngift: Was the item purchased as a gift for someone else? \\\nAnswer True if yes, False if not or unknown.\n\ndelivery_days: How many days did it take for the product \\\nto arrive? If this information is not found, output -1.\n\nprice_value: Extract any sentences about the value or price,\\\nand output them as a comma separated Python list.\n\nFormat the output as JSON with the following keys:\ngift\ndelivery_days\nprice_value\n\ntext: {text}\n\"\"\""
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#prompt-template",
+    "href": "slides/1_model_prompt_parser.html#prompt-template",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Prompt template",
+    "text": "Prompt template\n\nprompt_template = ChatPromptTemplate.from_template(review_template)\nprint(prompt_template)\n\n\ninput_variables=[‘text’] output_parser=None partial_variables={} messages=[HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=[‘text’], output_parser=None, partial_variables={}, template=’For the following text, extract the following information:: Was the item purchased as a gift for someone else? Answer True if yes, False if not or unknown._days: How many days did it take for the product to arrive? If this information is not found, output -1._value: Extract any sentences about the value or price,and output them as a comma separated Python list.the output as JSON with the following keys:_days_value: {text}‘, template_format=’f-string’, validate_template=True), additional_kwargs={})]"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#response",
+    "href": "slides/1_model_prompt_parser.html#response",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Response",
+    "text": "Response\n\nmessages = prompt_template.format_messages(text=customer_review)\nchat = ChatOpenAI(temperature=0.0, model=llm_model)\nresponse = chat(messages)\nprint(response.content)\n\n\n{\n  \"gift\": false,\n  \"delivery_days\": 2,\n  \"price_value\": [\"It's slightly more expensive than the other leaf blowers out there, but I think it's worth it for the extra features.\"],\n  \"text\": \"This leaf blower is pretty amazing. It has four settings:candle blower, gentle breeze, windy city, and tornado. It arrived in two days, just in time for my wife's anniversary present. I think my wife liked it so much she was speechless. So far I've been the only one using it, and I've been using it every other morning to clear the leaves on our lawn. It's slightly more expensive than the other leaf blowers out there, but I think it's worth it for the extra features.\"\n}"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#inspect-response",
+    "href": "slides/1_model_prompt_parser.html#inspect-response",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Inspect response",
+    "text": "Inspect response\n\ntype(response.content)\n\n\nstr\n\n\n\n# You will get an error by running this line of code\n# because'gift' is not a dictionary\n# 'gift' is a string\nresponse.content.get('gift')\n\n\n---------------------------------------------------------------------------\nAttributeError                            Traceback (most recent call last)\n/Users/jankirenz/labs/lab-langchain-basics/slides/1_model_prompt_parser.qmd in line 1\n----&gt; 342 response.content.get('gift')\n\nAttributeError: 'str' object has no attribute 'get'"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#parse-output-into-dictionary-1",
+    "href": "slides/1_model_prompt_parser.html#parse-output-into-dictionary-1",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Parse output into dictionary",
+    "text": "Parse output into dictionary\n\nParse the LLM output string into a Python dictionary\n\n\n\ngift_schema = ResponseSchema(name=\"gift\",\n                             description=\"Was the item purchased\\\n                             as a gift for someone else? \\\n                             Answer True if yes,\\\n                             False if not or unknown.\")\n\ndelivery_days_schema = ResponseSchema(name=\"delivery_days\",\n                                      description=\"How many days\\\n                                      did it take for the product\\\n                                      to arrive? If this \\\n                                      information is not found,\\\n                                      output -1.\")\n\nprice_value_schema = ResponseSchema(name=\"price_value\",\n                                    description=\"Extract any\\\n                                    sentences about the value or \\\n                                    price, and output them as a \\\n                                    comma separated Python list.\")\n\nresponse_schemas = [gift_schema,\n                    delivery_days_schema,\n                    price_value_schema]"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#structuredoutputparser",
+    "href": "slides/1_model_prompt_parser.html#structuredoutputparser",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "StructuredOutputParser",
+    "text": "StructuredOutputParser\n\noutput_parser = StructuredOutputParser.from_response_schemas(response_schemas)\n\n\n\nformat_instructions = output_parser.get_format_instructions()\n\n\nprint(format_instructions)\n\n\nThe output should be a markdown code snippet formatted in the following schema, including the leading and trailing “json\" and \"”:\n\n{\n    \"gift\": string  // Was the item purchased                             as a gift for someone else?                              Answer True if yes,                             False if not or unknown.\n    \"delivery_days\": string  // How many days                                      did it take for the product                                      to arrive? If this                                       information is not found,                                      output -1.\n    \"price_value\": string  // Extract any                                    sentences about the value or                                     price, and output them as a                                     comma separated Python list.\n}"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#review-template-2",
+    "href": "slides/1_model_prompt_parser.html#review-template-2",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Review template 2",
+    "text": "Review template 2\n\nreview_template_2 = \"\"\"\\\nFor the following text, extract the following information:\n\ngift: Was the item purchased as a gift for someone else? \\\nAnswer True if yes, False if not or unknown.\n\ndelivery_days: How many days did it take for the product\\\nto arrive? If this information is not found, output -1.\n\nprice_value: Extract any sentences about the value or price,\\\nand output them as a comma separated Python list.\n\ntext: {text}\n\n{format_instructions}\n\"\"\"\n\nprompt = ChatPromptTemplate.from_template(template=review_template_2)\n\nmessages = prompt.format_messages(text=customer_review,\n                                  format_instructions=format_instructions)"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#inspect-template",
+    "href": "slides/1_model_prompt_parser.html#inspect-template",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Inspect template",
+    "text": "Inspect template\n\nprint(messages[0].content)\n\n\nFor the following text, extract the following information: gift: Was the item purchased as a gift for someone else? Answer True if yes, False if not or unknown. delivery_days: How many days did it take for the productto arrive? If this information is not found, output -1. price_value: Extract any sentences about the value or price,and output them as a comma separated Python list. text: This leaf blower is pretty amazing. It has four settings:candle blower, gentle breeze, windy city, and tornado. It arrived in two days, just in time for my wife’s anniversary present. I think my wife liked it so much she was speechless. So far I’ve been the only one using it, and I’ve been using it every other morning to clear the leaves on our lawn. It’s slightly more expensive than the other leaf blowers out there, but I think it’s worth it for the extra features.\n\nThe output should be a markdown code snippet formatted in the following schema, including the leading and trailing “json\" and \"”:\n{\n    \"gift\": string  // Was the item purchased                             as a gift for someone else?                              Answer True if yes,                             False if not or unknown.\n    \"delivery_days\": string  // How many days                                      did it take for the product                                      to arrive? If this                                       information is not found,                                      output -1.\n    \"price_value\": string  // Extract any                                    sentences about the value or                                     price, and output them as a                                     comma separated Python list.\n}"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#response-1",
+    "href": "slides/1_model_prompt_parser.html#response-1",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Response",
+    "text": "Response\n\nresponse = chat(messages)\n\n\n\nprint(response.content)\n\n\n\n{\n    \"gift\": false,\n    \"delivery_days\": \"2\",\n    \"price_value\": \"It's slightly more expensive than the other leaf blowers out there, but I think it's worth it for the extra features.\"\n}"
+  },
+  {
+    "objectID": "slides/1_model_prompt_parser.html#parse-output",
+    "href": "slides/1_model_prompt_parser.html#parse-output",
+    "title": "Models, Prompts and Output Parsers",
+    "section": "Parse output",
+    "text": "Parse output\n\noutput_dict = output_parser.parse(response.content)\n\n\n\noutput_dict\n\n\n\n{'gift': False,\n 'delivery_days': '2',\n 'price_value': \"It's slightly more expensive than the other leaf blowers out there, but I think it's worth it for the extra features.\"}\n\ntype(output_dict)\n\n\ndict\n\n\noutput_dict.get('delivery_days')\n\n\n2"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Welcome 👋",
+    "section": "",
+    "text": "Welcome to the lab Langchain Basics\n\nIn this lab you will …\n\n\n\n\n\n\nImportant\n\n\n\nMake sure you meet all the requirements and have read the lecture slides before you start with the assignments\n\n\nWhat you will learn in this lab:\n\nHow to set up a MySQL database\nUse SQL for data analysis\nMake use of Pandas for data analysis in Python\nUse Altair for data visualization in Python"
+  },
+  {
+    "objectID": "slide.html",
+    "href": "slide.html",
+    "title": "Slides",
+    "section": "",
+    "text": "The following tutorials are mainly based on “” provided by\nTxt"
+  },
+  {
+    "objectID": "slide.html#txt",
+    "href": "slide.html#txt",
+    "title": "Slides",
+    "section": "1 Txt",
+    "text": "1 Txt\nIn this tutorial, you’ll learn:\n\n\n\n\n\n\n\n🖥️ Presentation\n💻 Jupyter Notebook"
+  },
+  {
+    "objectID": "assignments.html",
+    "href": "assignments.html",
+    "title": "Assignments",
+    "section": "",
+    "text": "This is a Quarto slidedeck."
+  },
+  {
     "objectID": "code/notebook.html",
     "href": "code/notebook.html",
     "title": "Notebook",
@@ -28,72 +245,44 @@
     "text": "Data"
   },
   {
-    "objectID": "assignments.html",
-    "href": "assignments.html",
-    "title": "Assignments",
-    "section": "",
-    "text": "This is a Quarto slidedeck."
-  },
-  {
-    "objectID": "slide.html",
-    "href": "slide.html",
-    "title": "Slides",
-    "section": "",
-    "text": "The following tutorials are mainly based on “” provided by\nTxt"
-  },
-  {
-    "objectID": "slide.html#txt",
-    "href": "slide.html#txt",
-    "title": "Slides",
-    "section": "1 Txt",
-    "text": "1 Txt\nIn this tutorial, you’ll learn:\n\n\n\n\n\n\n\n🖥️ Presentation\n💻 Jupyter Notebook"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Welcome 👋",
-    "section": "",
-    "text": "Welcome to the lab ““\n\nIn this lab you will …\n\n\n\n\n\n\nImportant\n\n\n\nMake sure you meet all the requirements and have read the lecture slides before you start with the assignments\n\n\nWhat you will learn in this lab:\n\nHow to set up a MySQL database\nUse SQL for data analysis\nMake use of Pandas for data analysis in Python\nUse Altair for data visualization in Python"
-  },
-  {
     "objectID": "slides/slides.html#text",
     "href": "slides/slides.html#text",
-    "title": "Title",
+    "title": "foo",
     "section": "Text",
     "text": "Text\n\na 🤖\n\nabc\n\n\n\n\nb\nc1\n\n📚 Required reading: A & B (2023)\nhttps://arxiv.org/pdf/2303.12712.pdf\n\nRussell & Norvig, 2009"
   },
   {
     "objectID": "slides/slides.html#image",
     "href": "slides/slides.html#image",
-    "title": "Title",
+    "title": "foo",
     "section": "Image",
     "text": "Image"
   },
   {
     "objectID": "slides/slides.html#video",
     "href": "slides/slides.html#video",
-    "title": "Title",
+    "title": "foo",
     "section": "Video",
     "text": "Video"
   },
   {
     "objectID": "slides/slides.html#a-lot-of-text",
     "href": "slides/slides.html#a-lot-of-text",
-    "title": "Title",
+    "title": "foo",
     "section": "A lot of text",
     "text": "A lot of text\nSmaller heading"
   },
   {
     "objectID": "slides/slides.html#background-image",
     "href": "slides/slides.html#background-image",
-    "title": "Title",
+    "title": "foo",
     "section": "Background image",
     "text": "Background image\nabc"
   },
   {
     "objectID": "slides/slides.html#code",
     "href": "slides/slides.html#code",
-    "title": "Title",
+    "title": "foo",
     "section": "Code",
     "text": "Code\n1print('Hello World')\n2for i in LIST:\n  df[i] = df[i].astype('cat')\n\n1\n\nPrint Hello World, and then,\n\n2\n\ntransform all columns in the LIST element to categorical variables"
   }
