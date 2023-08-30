@@ -1,0 +1,298 @@
+---
+title: Q&A over Documents
+title-slide-attributes:
+  data-background-image: ../images/logo.png
+  data-background-size: contain
+  data-background-opacity: "0.5"
+lang: en
+subtitle: LangChain Basics 4
+author: Jan Kirenz
+execute:
+  eval: false
+  echo: true
+highlight-style: github
+format:
+  revealjs: 
+    toc: true
+    toc-depth: 1
+    embed-resources: false
+    theme: [dark, ../custom.scss]  
+    incremental: true
+    transition: slide
+    background-transition: fade
+    transition-speed: slow
+    code-copy: true
+    code-line-numbers: true
+    smaller: false
+    scrollable: true
+    slide-number: c
+    preview-links: auto
+    chalkboard: 
+      buttons: false
+   # logo: ../images/logo.png
+    footer: Jan Kirenz
+---
+
+# LangChain: Q&A over Documents
+
+Let's build a tool that would allow you to query a product catalog for items of interest.
+
+# Setup
+
+## Python
+
+
+```{python}
+
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.indexes import VectorstoreIndexCreator
+from IPython.display import display, Markdown
+from langchain.vectorstores import DocArrayInMemorySearch  # vector store
+from langchain.document_loaders import CSVLoader
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import RetrievalQA
+import datetime
+import os
+
+from dotenv import load_dotenv, find_dotenv
+_ = load_dotenv(find_dotenv())  # read local .env file
+
+```
+
+```{python}
+# pip install --upgrade langchain
+```
+
+
+
+# Simple example
+
+## Load Data
+
+```{python}
+file = '../data/OutdoorClothingCatalog_1000.csv'
+loader = CSVLoader(file_path=file)
+```
+
+. . .
+
+- Create vector store
+
+```{python}
+index = VectorstoreIndexCreator(
+    vectorstore_cls=DocArrayInMemorySearch
+).from_loaders([loader])
+```
+
+
+## Query and response
+
+```{python}
+query = "Please list all your shirts with sun protection \
+in a table in markdown and summarize each one."
+```
+
+. . .
+
+```{python}
+response = index.query(query)
+```
+
+. . .
+
+```{python}
+# | output-location: slide
+display(Markdown(response))
+```
+
+
+# Step By Step
+
+## Basics
+
+- Language models ca only inspect a few thousands word at a time
+
+- This is why we need embeddings and vector stores
+
+
+## Loader
+
+- We use our `loader` from before (`loader = CSVLoader(file_path=file)`
+
+
+. . .
+
+```{python}
+docs = loader.load()
+```
+
+```{python}
+# | output-location: fragment
+docs[0]
+```
+
+- Document(page_content=": 0\nname: Women's Campside Oxfords\ndescription: This ultracomfortable lace-to-toe Oxford boasts a super-soft canvas, thick cushioning, and quality construction for a broken-in feel from the first time you put them on. \n\nSize & Fit: Order regular shoe size. For half sizes not offered, order up to next whole size. \n\nSpecs: Approx. weight: 1 lb.1 oz. per pair. \n\nConstruction: Soft canvas material for a broken-in feel and look. Comfortable EVA innersole with Cleansport NXT® antimicrobial odor control. Vintage hunt, fish and camping motif on innersole. Moderate arch contour of innersole. EVA foam midsole for cushioning and support. Chain-tread-inspired molded rubber outsole with modified chain-tread pattern. Imported. \n\nQuestions? Please contact us for any inquiries.", metadata={'source': '../data/OutdoorClothingCatalog_1000.csv', 'row': 0})
+
+## Embeddings
+
+- Our documents are so small that we dont need to chunck them first
+
+. . .
+
+```{python}
+embeddings = OpenAIEmbeddings()
+```
+
+. . .
+
+```{python}
+embed = embeddings.embed_query("Hi my name is Jan")
+```
+
+. . .
+
+```{python}
+print(len(embed))
+```
+
+- 1536
+
+. . .
+
+```{python}
+print(embed[:5])
+```
+
+- [-0.015501204878091812, -0.0016401495086029172, -0.01953849568963051, -0.016909271478652954, -0.021893581375479698]
+
+## Create vector store
+
+```{python}
+db = DocArrayInMemorySearch.from_documents(
+    docs,
+    embeddings
+)
+```
+
+## Query {.smaller}
+
+```{python}
+query = "Please suggest a shirt with sunblocking"
+```
+
+. . .
+
+```{python}
+docs = db.similarity_search(query)
+```
+
+. . .
+
+```{python}
+len(docs)
+```
+
+- 4
+
+. . .
+
+```{python}
+docs[0]
+```
+
+- Document(page_content=': 255\nname: Sun Shield Shirt by\ndescription: "Block the sun, not the fun – our high-performance sun shirt is guaranteed to protect from harmful UV rays. \n\nSize & Fit: Slightly Fitted: Softly shapes the body. Falls at hip.\n\nFabric & Care: 78% nylon, 22% Lycra Xtra Life fiber. UPF 50+ rated – the highest rated sun protection possible. Handwash, line dry.\n\nAdditional Features: Wicks moisture for quick-drying comfort. Fits comfortably over your favorite swimsuit. Abrasion resistant for season after season of wear. Imported.\n\nSun Protection That Won\'t Wear Off\nOur high-performance fabric provides SPF 50+ sun protection, blocking 98% of the sun\'s harmful rays. This fabric is recommended by The Skin Cancer Foundation as an effective UV protectant.', metadata={'source': '../data/OutdoorClothingCatalog_1000.csv', 'row': 255})
+
+# Manual Example
+
+. . .
+
+```{python}
+llm_model = "gpt-3.5-turbo"
+llm = ChatOpenAI(temperature=0.0, model=llm_model)
+```
+
+. . .
+
+- If we would do it manually, we would combine the text with a join
+
+```{python}
+qdocs = "".join([docs[i].page_content for i in range(len(docs))])
+```
+
+. . .
+
+- And then we would provide qdocs to the llm:
+
+```{python}
+# This may take a while
+response = llm.call_as_llm(f"{qdocs} Question: Please list all your \
+shirts with sun protection in a table in markdown and summarize each one.")
+```
+
+. . .
+
+```{python}
+display(Markdown(response))
+```
+
+
+XYZ Error
+
+# Retrieval Chain
+
+## Chain
+
+
+```{python}
+retriever = db.as_retriever()
+```
+
+. . .
+
+```{python}
+qa_stuff = RetrievalQA.from_chain_type(
+    llm=llm,
+    chain_type="stuff",  # one propmt and one result
+    retriever=retriever,
+    verbose=True
+)
+```
+
+## Query
+
+```{python}
+query = "Please list all your shirts with sun protection in a table \
+in markdown and summarize each one."
+```
+
+. . .
+
+```{python}
+response = qa_stuff.run(query)
+```
+
+. . .
+
+```{python}
+display(Markdown(response))
+```
+
+. . .
+
+```{python}
+response = index.query(query, llm=llm)
+```
+
+
+
+
+
+# Acknowledgments
+
+*This tutorial is mainly based on the excellent course ["LangChain for LLM Application Development"](https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/) provided by Harrison Chase and Andrew Ng*
+
+# What's next? {background-image="../images/logo.png" background-opacity="0.5"}
+
+- **Congratulations! You have completed this tutorial** 👍
+
+**Next, you may want to go back to the [lab's website](https://kirenz.github.io/langchain-basics/)**
