@@ -596,6 +596,9 @@ output_dict.get('delivery_days')
 
 - 2
 
+# Acknowledgments
+
+*This tutorial is mainly based on the excellent course ["LangChain for LLM Application Development"](https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/) provided by Harrison Chase and Andrew Ng*
 
 # What's next? {background-image="../images/logo.png" background-opacity="0.5"}
 
