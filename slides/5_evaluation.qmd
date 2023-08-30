@@ -1,0 +1,395 @@
+---
+title: Evaluation
+title-slide-attributes:
+  data-background-image: ../images/logo.png
+  data-background-size: contain
+  data-background-opacity: "0.5"
+lang: en
+subtitle: LangChain Basics 5
+author: Jan Kirenz
+execute:
+  eval: false
+  echo: true
+highlight-style: github
+format:
+  revealjs: 
+    toc: true
+    toc-depth: 1
+    embed-resources: false
+    theme: [dark, ../custom.scss]  
+    incremental: true
+    transition: slide
+    background-transition: fade
+    transition-speed: slow
+    code-copy: true
+    code-line-numbers: true
+    smaller: false
+    scrollable: true
+    slide-number: c
+    preview-links: auto
+    chalkboard: 
+      buttons: false
+   # logo: ../images/logo.png
+    footer: Jan Kirenz
+---
+
+# LangChain: Evaluation
+
+Example generation, Manual evaluation (and debuging), LLM-assisted evaluation & LangChain evaluation platform
+
+# Setup
+
+## Python
+
+```{python}
+from langchain.evaluation.qa import QAEvalChain
+import langchain
+from langchain.evaluation.qa import QAGenerateChain
+from langchain.vectorstores import DocArrayInMemorySearch
+from langchain.indexes import VectorstoreIndexCreator
+from langchain.document_loaders import CSVLoader
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import RetrievalQA
+import datetime
+import os
+
+from dotenv import load_dotenv, find_dotenv
+_ = load_dotenv(find_dotenv())
+```
+
+# Q and A Application
+
+## Load data
+
+```{python}
+file = '../data/OutdoorClothingCatalog_1000.csv'
+loader = CSVLoader(file_path=file)
+data = loader.load()
+```
+
+- Vector store
+
+. . .
+
+```{python}
+index = VectorstoreIndexCreator(
+    vectorstore_cls=DocArrayInMemorySearch
+).from_loaders([loader])
+```
+
+## Retrieval QA chain
+
+```{python}
+llm_model = "gpt-3.5-turbo"
+
+llm = ChatOpenAI(temperature=0.0, model=llm_model)
+
+qa = RetrievalQA.from_chain_type(
+    llm=llm,
+    chain_type="stuff",
+    retriever=index.vectorstore.as_retriever(),
+    verbose=True,
+    chain_type_kwargs={
+        "document_separator": "<<<<>>>>>"
+    }
+)
+```
+
+# Test Datapoints Manually
+
+- We use our data and come up with relevant questions
+
+## Datapoint 1 {.smaller}
+
+```{python}
+data[10]
+```
+
+- `Output`: Document(page_content=": 10\nname: Cozy Comfort Pullover Set, Stripe\ndescription: Perfect for lounging, this striped knit set lives up to its name. We used ultrasoft fabric and an easy design that's as comfortable at bedtime as it is when we have to make a quick run out.\n\nSize & Fit\n- Pants are Favorite Fit: Sits lower on the waist.\n- Relaxed Fit: Our most generous fit sits farthest from the body.\n\nFabric & Care\n- In the softest blend of 63% polyester, 35% rayon and 2% spandex.\n\nAdditional Features\n- Relaxed fit top with raglan sleeves and rounded hem.\n- Pull-on pants have a wide elastic waistband and drawstring, side pockets and a modern slim leg.\n\nImported.", metadata={'source': '../data/OutdoorClothingCatalog_1000.csv', 'row': 10})
+
+## Datapoint 2 {.smaller}
+
+```{python}
+data[11]
+```
+
+- `Output`: Document(page_content=': 11\nname: Ultra-Lofty 850 Stretch Down Hooded Jacket\ndescription: This technical stretch down jacket from our DownTek collection is sure to keep you warm and comfortable with its full-stretch construction providing exceptional range of motion. With a slightly fitted style that falls at the hip and best with a midweight layer, this jacket is suitable for light activity up to 20° and moderate activity up to -30°. The soft and durable 100% polyester shell offers complete windproof protection and is insulated with warm, lofty goose down. Other features include welded baffles for a no-stitch construction and excellent stretch, an adjustable hood, an interior media port and mesh stash pocket and a hem drawcord. Machine wash and dry. Imported.', metadata={'source': '../data/OutdoorClothingCatalog_1000.csv', 'row': 11})
+
+## Hard-coded example questions
+
+```{python}
+examples = [
+    {
+        "query": "Do the Cozy Comfort Pullover Set\
+        have side pockets?",
+        "answer": "Yes"
+    },
+    {
+        "query": "What collection is the Ultra-Lofty \
+        850 Stretch Down Hooded Jacket from?",
+        "answer": "The DownTek collection"
+    }
+]
+```
+
+
+# LLM-Generated examples
+
+- Automate evaluation with a llM
+
+## QAGenerateChain
+
+- Generate questions and answer pairs
+
+```{python}
+example_gen_chain = QAGenerateChain.from_llm(ChatOpenAI(model=llm_model))
+```
+
+. . .
+
+- Create dictionary with question and answer pair
+
+```{python}
+# the warning can be safely ignored
+new_examples = example_gen_chain.apply_and_parse(
+    [{"doc": t} for t in data[:5]]
+)
+```
+
+## New examples
+
+```{python}
+new_examples[0]
+```
+
+- `Output`: {'query': "What is the weight of one pair of Women's Campside Oxfords?",
+ 'answer': "The approximate weight of one pair of Women's Campside Oxfords is 1 lb. 1 oz."}
+
+## Original data {.smaller}
+
+
+```{python}
+data[0]
+```
+
+- `Output`: Document(page_content=": 0\nname: Women's Campside Oxfords\ndescription: This ultracomfortable lace-to-toe Oxford boasts a super-soft canvas, thick cushioning, and quality construction for a broken-in feel from the first time you put them on. \n\nSize & Fit: Order regular shoe size. For half sizes not offered, order up to next whole size. \n\nSpecs: Approx. weight: 1 lb.1 oz. per pair. \n\nConstruction: Soft canvas material for a broken-in feel and look. Comfortable EVA innersole with Cleansport NXT® antimicrobial odor control. Vintage hunt, fish and camping motif on innersole. Moderate arch contour of innersole. EVA foam midsole for cushioning and support. Chain-tread-inspired molded rubber outsole with modified chain-tread pattern. Imported. \n\nQuestions? Please contact us for any inquiries.", metadata={'source': '../data/OutdoorClothingCatalog_1000.csv', 'row': 0})
+
+# QA Chain
+
+## Combine examples
+
+```{python}
+examples += new_examples
+```
+
+. . .
+
+```{python}
+qa.run(examples[0]["query"])
+```
+
+- `Output`: 'Yes, the Cozy Comfort Pullover Set does have side pockets.'
+
+- Very litte information about the process in the output
+
+## Langchain debug
+
+- We set `.debug=True`to get more information
+
+. . .
+
+```{python}
+langchain.debug = True
+```
+
+- Rerun the same application and take a look at your output
+
+. . .
+
+```{python}
+qa.run(examples[0]["query"])
+```
+
+. . .
+
+```bash
+[chain/start] [1:chain:RetrievalQA] Entering Chain run with input:
+{
+  "query": "Do the Cozy Comfort Pullover Set        have side pockets?"
+}
+[chain/start] [1:chain:RetrievalQA > 3:chain:StuffDocumentsChain] Entering Chain run with input:
+[inputs]
+[chain/start] [1:chain:RetrievalQA > 3:chain:StuffDocumentsChain > 4:chain:LLMChain] Entering Chain run with input:
+{
+  "question": "Do the Cozy Comfort Pullover Set        have side pockets?",
+  "context": ": 10\nname: Cozy Comfort Pullover Set, Stripe\ndescription: Perfect for lounging, this striped knit set lives up to its name. We used ultrasoft fabric and an easy design that's as comfortable at bedtime as it is when we have to make a quick run out.\n\nSize & Fit\n- Pants are Favorite Fit: Sits lower on the waist.\n- Relaxed Fit: Our most generous fit sits farthest from the body.\n\nFabric & Care\n- In the softest blend of 63% polyester, 35% rayon and 2% spandex.\n\nAdditional Features\n- Relaxed fit top with raglan sleeves and rounded hem.\n- Pull-on pants have a wide elastic waistband and drawstring, side pockets and a modern slim leg.\n\nImported.<<<<>>>>>: 73\nname: Cozy Cuddles Knit Pullover Set\ndescription: Perfect for lounging, this knit set lives up to its name. We used ultrasoft fabric and an easy design that's as comfortable at bedtime as it is when we have to make a quick run out. \n\nSize & Fit \nPants are Favorite Fit: Sits lower on the waist. \nRelaxed Fit: Our most generous fit sits farthest from the body. \n\nFabric & Care \nIn the softest blend of 63% polyester, 35% rayon and 2% spandex.\n\nAdditional Features \nRelaxed fit top with raglan sleeves and rounded hem. \nPull-on pants have a wide elastic waistband and drawstring, side pockets and a modern slim leg. \nImported.<<<<>>>>>: 632\nname: Cozy Comfort Fleece Pullover\ndescription: The ultimate sweater fleece – made from superior fabric and offered at an unbeatable price. \n\nSize & Fit\nSlightly Fitted: Softly shapes the body. Falls at hip. \n\nWhy We Love It\nOur customers (and employees) love the rugged construction and heritage-inspired styling of our popular Sweater Fleece Pullover and wear it for absolutely everything. From high-intensity activities to everyday tasks, you'll find yourself reaching for it every time.\n\nFabric & Care\nRugged sweater-knit exterior and soft brushed interior for exceptional warmth and comfort. Made from soft, 100% polyester. Machine wash and dry.\n\nAdditional Features\nFeatures our classic Mount Katahdin logo. Snap placket. Front princess seams create a feminine shape. Kangaroo handwarmer pockets. Cuffs and hem reinforced with jersey binding. Imported.\n\n – Official Supplier to the U.S. Ski Team\nTHEIR WILL TO WIN, WOVEN RIGHT IN. LEARN MORE<<<<>>>>>: 151\nname: Cozy Quilted Sweatshirt\ndescription: Our sweatshirt is an instant classic with its great quilted texture and versatile weight that easily transitions between seasons. With a traditional fit that is relaxed through the chest, sleeve, and waist, this pullover is lightweight enough to be worn most months of the year. The cotton blend fabric is super soft and comfortable, making it the perfect casual layer. To make dressing easy, this sweatshirt also features a snap placket and a heritage-inspired Mt. Katahdin logo patch. For care, machine wash and dry. Imported."
+}
+[llm/start] [1:chain:RetrievalQA > 3:chain:StuffDocumentsChain > 4:chain:LLMChain > 5:llm:ChatOpenAI] Entering LLM run with input:
+{
+  "prompts": [
+    "System: Use the following pieces of context to answer the users question. \nIf you don't know the answer, just say that you don't know, don't try to make up an answer.\n----------------\n: 10\nname: Cozy Comfort Pullover Set, Stripe\ndescription: Perfect for lounging, this striped knit set lives up to its name. We used ultrasoft fabric and an easy design that's as comfortable at bedtime as it is when we have to make a quick run out.\n\nSize & Fit\n- Pants are Favorite Fit: Sits lower on the waist.\n- Relaxed Fit: Our most generous fit sits farthest from the body.\n\nFabric & Care\n- In the softest blend of 63% polyester, 35% rayon and 2% spandex.\n\nAdditional Features\n- Relaxed fit top with raglan sleeves and rounded hem.\n- Pull-on pants have a wide elastic waistband and drawstring, side pockets and a modern slim leg.\n\nImported.<<<<>>>>>: 73\nname: Cozy Cuddles Knit Pullover Set\ndescription: Perfect for lounging, this knit set lives up to its name. We used ultrasoft fabric and an easy design that's as comfortable at bedtime as it is when we have to make a quick run out. \n\nSize & Fit \nPants are Favorite Fit: Sits lower on the waist. \nRelaxed Fit: Our most generous fit sits farthest from the body. \n\nFabric & Care \nIn the softest blend of 63% polyester, 35% rayon and 2% spandex.\n\nAdditional Features \nRelaxed fit top with raglan sleeves and rounded hem. \nPull-on pants have a wide elastic waistband and drawstring, side pockets and a modern slim leg. \nImported.<<<<>>>>>: 632\nname: Cozy Comfort Fleece Pullover\ndescription: The ultimate sweater fleece – made from superior fabric and offered at an unbeatable price. \n\nSize & Fit\nSlightly Fitted: Softly shapes the body. Falls at hip. \n\nWhy We Love It\nOur customers (and employees) love the rugged construction and heritage-inspired styling of our popular Sweater Fleece Pullover and wear it for absolutely everything. From high-intensity activities to everyday tasks, you'll find yourself reaching for it every time.\n\nFabric & Care\nRugged sweater-knit exterior and soft brushed interior for exceptional warmth and comfort. Made from soft, 100% polyester. Machine wash and dry.\n\nAdditional Features\nFeatures our classic Mount Katahdin logo. Snap placket. Front princess seams create a feminine shape. Kangaroo handwarmer pockets. Cuffs and hem reinforced with jersey binding. Imported.\n\n – Official Supplier to the U.S. Ski Team\nTHEIR WILL TO WIN, WOVEN RIGHT IN. LEARN MORE<<<<>>>>>: 151\nname: Cozy Quilted Sweatshirt\ndescription: Our sweatshirt is an instant classic with its great quilted texture and versatile weight that easily transitions between seasons. With a traditional fit that is relaxed through the chest, sleeve, and waist, this pullover is lightweight enough to be worn most months of the year. The cotton blend fabric is super soft and comfortable, making it the perfect casual layer. To make dressing easy, this sweatshirt also features a snap placket and a heritage-inspired Mt. Katahdin logo patch. For care, machine wash and dry. Imported.\nHuman: Do the Cozy Comfort Pullover Set        have side pockets?"
+  ]
+}
+[llm/end] [1:chain:RetrievalQA > 3:chain:StuffDocumentsChain > 4:chain:LLMChain > 5:llm:ChatOpenAI] [1.20s] Exiting LLM run with output:
+{
+  "generations": [
+    [
+      {
+        "text": "Yes, the Cozy Comfort Pullover Set does have side pockets.",
+        "generation_info": null,
+        "message": {
+          "lc": 1,
+          "type": "constructor",
+          "id": [
+            "langchain",
+            "schema",
+            "messages",
+            "AIMessage"
+          ],
+          "kwargs": {
+            "content": "Yes, the Cozy Comfort Pullover Set does have side pockets.",
+            "additional_kwargs": {}
+          }
+        }
+      }
+    ]
+  ],
+  "llm_output": {
+    "token_usage": {
+      "prompt_tokens": 732,
+      "completion_tokens": 14,
+      "total_tokens": 746
+    },
+    "model_name": "gpt-3.5-turbo"
+  },
+  "run": null
+}
+[chain/end] [1:chain:RetrievalQA > 3:chain:StuffDocumentsChain > 4:chain:LLMChain] [1.20s] Exiting Chain run with output:
+{
+  "text": "Yes, the Cozy Comfort Pullover Set does have side pockets."
+}
+[chain/end] [1:chain:RetrievalQA > 3:chain:StuffDocumentsChain] [1.20s] Exiting Chain run with output:
+{
+  "output_text": "Yes, the Cozy Comfort Pullover Set does have side pockets."
+}
+[chain/end] [1:chain:RetrievalQA] [5.15s] Exiting Chain run with output:
+{
+  "result": "Yes, the Cozy Comfort Pullover Set does have side pockets."
+}
+```
+
+## Turn of debug mode
+
+```{python}
+# Turn off the debug mode
+langchain.debug = False
+```
+
+
+## Limitations
+
+- Only possible for relatively simple applications
+- In the next section, we take a look at an automated approach
+
+# LLM Assisted Evaluation
+
+Let's use a LLM for semantic evaluation
+
+## QAEvalChain
+
+- Get predictions for our examples
+
+. . .
+
+```{python}
+predictions = qa.apply(examples)
+```
+
+
+. . .
+
+- Create chain with LLM
+
+```{python}
+llm = ChatOpenAI(temperature=0, model=llm_model)
+
+eval_chain = QAEvalChain.from_llm(llm)
+```
+
+- Call evaluate
+
+. . .
+
+```{python}
+graded_outputs = eval_chain.evaluate(examples, predictions)
+```
+
+## QAEvalChain
+
+- Loop through examples
+
+```{python}
+for i, eg in enumerate(examples):
+    print(f"Example {i}:")
+    print("Question: " + predictions[i]['query'])
+    print("Real Answer: " + predictions[i]['answer'])
+    print("Predicted Answer: " + predictions[i]['result'])
+    print("Predicted Grade: " + graded_outputs[i]['text'])
+    print()
+```
+
+. . .
+
+```markdown
+
+Example 0:
+Question: Do the Cozy Comfort Pullover Set        have side pockets?
+Real Answer: Yes
+Predicted Answer: Yes, the Cozy Comfort Pullover Set does have side pockets.
+Predicted Grade: CORRECT
+
+Example 1:
+Question: What collection is the Ultra-Lofty         850 Stretch Down Hooded Jacket from?
+Real Answer: The DownTek collection
+Predicted Answer: The Ultra-Lofty 850 Stretch Down Hooded Jacket is from the DownTek collection.
+Predicted Grade: CORRECT
+
+Example 2:
+Question: What is the weight of one pair of Women's Campside Oxfords?
+Real Answer: The approximate weight of one pair of Women's Campside Oxfords is 1 lb. 1 oz.
+Predicted Answer: The weight of one pair of Women's Campside Oxfords is approximately 1 lb. 1 oz.
+Predicted Grade: CORRECT
+
+Example 3:
+Question: What are the dimensions of the medium-sized Recycled Waterhog Dog Mat, Chevron Weave?
+Real Answer: The dimensions of the medium-sized Recycled Waterhog Dog Mat, Chevron Weave are 22.5" x 34.5".
+Predicted Answer: The dimensions of the medium-sized Recycled Waterhog Dog Mat, Chevron Weave are 22.5" x 34.5".
+Predicted Grade: CORRECT
+
+Example 4:
+...
+Real Answer: The fabric composition of the EcoFlex 3L Storm Pants is 100% nylon, exclusive of trim.
+Predicted Answer: The fabric composition of the EcoFlex 3L Storm Pants is 100% nylon, exclusive of trim.
+Predicted Grade: CORRECT
+
+```
+
+## Graded outputs
+
+```{python}
+graded_outputs[0]
+```
+
+- {'text': 'CORRECT'}
+
+
+
+# Acknowledgments
+
+*This tutorial is mainly based on the excellent course ["LangChain for LLM Application Development"](https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/) provided by Harrison Chase and Andrew Ng*
+
+# What's next? {background-image="../images/logo.png" background-opacity="0.5"}
+
+- **Congratulations! You have completed this tutorial** 👍
+
+**Next, you may want to go back to the [lab's website](https://kirenz.github.io/langchain-basics/)**
