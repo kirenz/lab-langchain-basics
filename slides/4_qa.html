@@ -12,7 +12,7 @@
   <meta name="generator" content="quarto-1.3.450">
 
   <meta name="author" content="Jan Kirenz">
-  <title>Langchain Basics - foo</title>
+  <title>Langchain Basics - Q&amp;A over Documents</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -394,8 +394,8 @@
     <div class="slides">
 
 <section id="title-slide" data-background-image="../images/logo.png" data-background-opacity="0.5" data-background-size="contain" class="quarto-title-block center">
-  <h1 class="title">foo</h1>
-  <p class="subtitle">foo</p>
+  <h1 class="title">Q&amp;A over Documents</h1>
+  <p class="subtitle">LangChain Basics 4</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -409,66 +409,271 @@ Jan Kirenz
 <nav role="doc-toc"> 
 <h2 id="toc-title">Table of contents</h2>
 <ul>
-<li class="fragment"><a href="#/h1" id="/toc-h1">H1</a></li>
+<li class="fragment"><a href="#/langchain-qa-over-documents" id="/toc-langchain-qa-over-documents">LangChain: Q&amp;A over Documents</a></li>
+<li class="fragment"><a href="#/setup" id="/toc-setup">Setup</a></li>
+<li class="fragment"><a href="#/simple-example" id="/toc-simple-example">Simple example</a></li>
+<li class="fragment"><a href="#/step-by-step" id="/toc-step-by-step">Step By Step</a></li>
+<li class="fragment"><a href="#/manual-example" id="/toc-manual-example">Manual Example</a></li>
+<li class="fragment"><a href="#/retrieval-chain" id="/toc-retrieval-chain">Retrieval Chain</a></li>
+<li class="fragment"><a href="#/acknowledgments" id="/toc-acknowledgments">Acknowledgments</a></li>
 <li class="fragment"><a href="#/whats-next" id="/toc-whats-next">What’s next?</a></li>
 </ul>
 </nav>
 </section>
+<section id="langchain-qa-over-documents" class="title-slide slide level1 center">
+<h1>LangChain: Q&amp;A over Documents</h1>
+<p>Let’s build a tool that would allow you to query a product catalog for items of interest.</p>
+</section>
+
 <section>
-<section id="h1" class="title-slide slide level1 center" data-background-image="../images/logo.png">
-<h1>H1</h1>
+<section id="setup" class="title-slide slide level1 center">
+<h1>Setup</h1>
 
 </section>
-<section id="text" class="slide level2">
-<h2>Text</h2>
-<ul>
-<li class="fragment"><p>a 🤖</p>
-<ul>
-<li class="fragment">abc</li>
-</ul></li>
-</ul>
+<section id="python" class="slide level2">
+<h2>Python</h2>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1"></a><span class="im">from</span> langchain.embeddings <span class="im">import</span> OpenAIEmbeddings</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="im">from</span> langchain.indexes <span class="im">import</span> VectorstoreIndexCreator</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="im">from</span> IPython.display <span class="im">import</span> display, Markdown</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="im">from</span> langchain.vectorstores <span class="im">import</span> DocArrayInMemorySearch  <span class="co"># vector store</span></span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="im">from</span> langchain.document_loaders <span class="im">import</span> CSVLoader</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="im">from</span> langchain.chat_models <span class="im">import</span> ChatOpenAI</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="im">from</span> langchain.chains <span class="im">import</span> RetrievalQA</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="im">import</span> datetime</span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="im">import</span> os</span>
+<span id="cb1-10"><a href="#cb1-10"></a></span>
+<span id="cb1-11"><a href="#cb1-11"></a><span class="im">from</span> dotenv <span class="im">import</span> load_dotenv, find_dotenv</span>
+<span id="cb1-12"><a href="#cb1-12"></a>_ <span class="op">=</span> load_dotenv(find_dotenv())  <span class="co"># read local .env file</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1"></a><span class="co"># pip install --upgrade langchain</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section></section>
+<section>
+<section id="simple-example" class="title-slide slide level1 center">
+<h1>Simple example</h1>
+
+</section>
+<section id="load-data" class="slide level2">
+<h2>Load Data</h2>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1"></a><span class="bu">file</span> <span class="op">=</span> <span class="st">'../data/OutdoorClothingCatalog_1000.csv'</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>loader <span class="op">=</span> CSVLoader(file_path<span class="op">=</span><span class="bu">file</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <div class="fragment">
 <ul>
-<li class="fragment"><p>b</p></li>
-<li class="fragment"><p>c<sup>1</sup></p></li>
+<li class="fragment">Create vector store</li>
 </ul>
-<p>📚 Required reading: <a href="link">A &amp; B (2023)</a></p>
-<p><a href="https://arxiv.org/pdf/2303.12712.pdf" class="uri">https://arxiv.org/pdf/2303.12712.pdf</a></p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1"></a>index <span class="op">=</span> VectorstoreIndexCreator(</span>
+<span id="cb4-2"><a href="#cb4-2"></a>    vectorstore_cls<span class="op">=</span>DocArrayInMemorySearch</span>
+<span id="cb4-3"><a href="#cb4-3"></a>).from_loaders([loader])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<aside><ol class="aside-footnotes"><li id="fn1"><p>Russell &amp; Norvig, 2009</p></li></ol></aside></section>
-<section id="image" class="slide level2">
-<h2>Image</h2>
+</div>
+</section>
+<section id="query-and-response" class="slide level2">
+<h2>Query and response</h2>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1"></a>query <span class="op">=</span> <span class="st">"Please list all your shirts with sun protection </span><span class="ch">\</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="st">in a table in markdown and summarize each one."</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1"></a>response <span class="op">=</span> index.query(query)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="fragment">
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1"></a>display(Markdown(response))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 
-<img data-src="../images/hdm.png" class="r-stretch"></section>
-<section id="video" class="slide level2">
-<h2>Video</h2>
-<iframe data-external="1" src="https://www.youtube.com/embed/KpedmJdrTpY" width="1920" height="1080" title="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-<!-- Video about Protein -->
+</div>
+</section><section id="query-and-response-output" class="slide level2 output-location-slide"><h2>Query and response</h2><div class="cell output-location-slide" data-execution_count="7">
+
+</div></section></section>
+<section>
+<section id="step-by-step" class="title-slide slide level1 center">
+<h1>Step By Step</h1>
+
 </section>
-<section id="a-lot-of-text" class="slide level2 smaller">
-<h2>A lot of text</h2>
-<p>Smaller heading</p>
+<section id="basics" class="slide level2">
+<h2>Basics</h2>
+<ul>
+<li class="fragment"><p>Language models ca only inspect a few thousands word at a time</p></li>
+<li class="fragment"><p>This is why we need embeddings and vector stores</p></li>
+</ul>
 </section>
-<section id="background-image" class="slide level2" data-background-image="../images/hdm.png">
-<h2>Background image</h2>
-<p>abc</p>
+<section id="loader" class="slide level2">
+<h2>Loader</h2>
+<ul>
+<li class="fragment">We use our <code>loader</code> from before (<code>loader = CSVLoader(file_path=file)</code></li>
+</ul>
+<div class="fragment">
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1"></a>docs <span class="op">=</span> loader.load()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1"></a>docs[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell fragment" data-execution_count="9">
+
+</div>
+<ul>
+<li class="fragment">Document(page_content=“: 0: Women’s Campside Oxfords: This ultracomfortable lace-to-toe Oxford boasts a super-soft canvas, thick cushioning, and quality construction for a broken-in feel from the first time you put them on. &amp; Fit: Order regular shoe size. For half sizes not offered, order up to next whole size. : Approx. weight: 1 lb.1 oz. per pair. : Soft canvas material for a broken-in feel and look. Comfortable EVA innersole with Cleansport NXT® antimicrobial odor control. Vintage hunt, fish and camping motif on innersole. Moderate arch contour of innersole. EVA foam midsole for cushioning and support. Chain-tread-inspired molded rubber outsole with modified chain-tread pattern. Imported. ? Please contact us for any inquiries.”, metadata={‘source’: ‘../data/OutdoorClothingCatalog_1000.csv’, ‘row’: 0})</li>
+</ul>
+</div>
 </section>
-<section id="code" class="slide level2">
-<h2>Code</h2>
-<div class="sourceCode" id="annotated-cell-1"><pre class="sourceCode numberSource python code-annotation-code number-lines code-with-copy code-annotated"><code class="sourceCode python"><a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-1-1" class="code-annotation-target"><a href="#annotated-cell-1-1"></a><span class="bu">print</span>(<span class="st">'Hello World'</span>)</span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-1" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-1-2" class="code-annotation-target"><a href="#annotated-cell-1-2"></a><span class="cf">for</span> i <span class="kw">in</span> LIST:</span>
-<span id="annotated-cell-1-3"><a href="#annotated-cell-1-3"></a>  df[i] <span class="op">=</span> df[i].astype(<span class="st">'cat'</span>)</span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<dl class="code-annotation-container-grid">
-<dt class="fragment" data-target-cell="annotated-cell-1" data-target-annotation="1">1</dt>
-<dd class="fragment">
-<span data-code-cell="annotated-cell-1" data-code-annotation="1" data-code-lines="1">Print Hello World, and then,</span>
-</dd>
-<dt class="fragment" data-target-cell="annotated-cell-1" data-target-annotation="2">2</dt>
-<dd class="fragment">
-<span data-code-cell="annotated-cell-1" data-code-annotation="2" data-code-lines="2,3">transform all columns in the LIST element to categorical variables</span>
-</dd>
-</dl>
+<section id="embeddings" class="slide level2">
+<h2>Embeddings</h2>
+<ul>
+<li class="fragment">Our documents are so small that we dont need to chunck them first</li>
+</ul>
+<div class="fragment">
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1"></a>embeddings <span class="op">=</span> OpenAIEmbeddings()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="fragment">
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1"></a>embed <span class="op">=</span> embeddings.embed_query(<span class="st">"Hi my name is Jan"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="fragment">
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1"></a><span class="bu">print</span>(<span class="bu">len</span>(embed))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li class="fragment">1536</li>
+</ul>
+</div>
+<div class="fragment">
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a><span class="bu">print</span>(embed[:<span class="dv">5</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li class="fragment">[-0.015501204878091812, -0.0016401495086029172, -0.01953849568963051, -0.016909271478652954, -0.021893581375479698]</li>
+</ul>
+</div>
+</section>
+<section id="create-vector-store" class="slide level2">
+<h2>Create vector store</h2>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a>db <span class="op">=</span> DocArrayInMemorySearch.from_documents(</span>
+<span id="cb14-2"><a href="#cb14-2"></a>    docs,</span>
+<span id="cb14-3"><a href="#cb14-3"></a>    embeddings</span>
+<span id="cb14-4"><a href="#cb14-4"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="query" class="slide level2 smaller">
+<h2>Query</h2>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a>query <span class="op">=</span> <span class="st">"Please suggest a shirt with sunblocking"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a>docs <span class="op">=</span> db.similarity_search(query)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="fragment">
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1"></a><span class="bu">len</span>(docs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li class="fragment">4</li>
+</ul>
+</div>
+<div class="fragment">
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1"></a>docs[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li class="fragment">Document(page_content=‘: 255: Sun Shield Shirt by: “Block the sun, not the fun – our high-performance sun shirt is guaranteed to protect from harmful UV rays. &amp; Fit: Slightly Fitted: Softly shapes the body. Falls at hip.&amp; Care: 78% nylon, 22% Lycra Xtra Life fiber. UPF 50+ rated – the highest rated sun protection possible. Handwash, line dry.Features: Wicks moisture for quick-drying comfort. Fits comfortably over your favorite swimsuit. Abrasion resistant for season after season of wear. Imported.Protection That Won't Wear Offhigh-performance fabric provides SPF 50+ sun protection, blocking 98% of the sun's harmful rays. This fabric is recommended by The Skin Cancer Foundation as an effective UV protectant.’, metadata={‘source’: ‘../data/OutdoorClothingCatalog_1000.csv’, ‘row’: 255})</li>
+</ul>
+</div>
 </section></section>
+<section id="manual-example" class="title-slide slide level1 center">
+<h1>Manual Example</h1>
+<div class="fragment">
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1"></a>llm_model <span class="op">=</span> <span class="st">"gpt-3.5-turbo"</span></span>
+<span id="cb19-2"><a href="#cb19-2"></a>llm <span class="op">=</span> ChatOpenAI(temperature<span class="op">=</span><span class="fl">0.0</span>, model<span class="op">=</span>llm_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment">If we would do it manually, we would combine the text with a join</li>
+</ul>
+<div class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1"></a>qdocs <span class="op">=</span> <span class="st">""</span>.join([docs[i].page_content <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(docs))])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment">And then we would provide qdocs to the llm:</li>
+</ul>
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1"></a><span class="co"># This may take a while</span></span>
+<span id="cb21-2"><a href="#cb21-2"></a>response <span class="op">=</span> llm.call_as_llm(<span class="ss">f"</span><span class="sc">{</span>qdocs<span class="sc">}</span><span class="ss"> Question: Please list all your </span><span class="ch">\</span></span>
+<span id="cb21-3"><a href="#cb21-3"></a><span class="ss">shirts with sun protection in a table in markdown and summarize each one."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="fragment">
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1"></a>display(Markdown(response))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>XYZ Error</p>
+</div>
+</section>
+
+<section>
+<section id="retrieval-chain" class="title-slide slide level1 center">
+<h1>Retrieval Chain</h1>
+
+</section>
+<section id="chain" class="slide level2">
+<h2>Chain</h2>
+<div class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1"></a>retriever <span class="op">=</span> db.as_retriever()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1"></a>qa_stuff <span class="op">=</span> RetrievalQA.from_chain_type(</span>
+<span id="cb24-2"><a href="#cb24-2"></a>    llm<span class="op">=</span>llm,</span>
+<span id="cb24-3"><a href="#cb24-3"></a>    chain_type<span class="op">=</span><span class="st">"stuff"</span>,  <span class="co"># one propmt and one result</span></span>
+<span id="cb24-4"><a href="#cb24-4"></a>    retriever<span class="op">=</span>retriever,</span>
+<span id="cb24-5"><a href="#cb24-5"></a>    verbose<span class="op">=</span><span class="va">True</span></span>
+<span id="cb24-6"><a href="#cb24-6"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</section>
+<section id="query-1" class="slide level2">
+<h2>Query</h2>
+<div class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1"></a>query <span class="op">=</span> <span class="st">"Please list all your shirts with sun protection in a table </span><span class="ch">\</span></span>
+<span id="cb25-2"><a href="#cb25-2"></a><span class="st">in markdown and summarize each one."</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1"></a>response <span class="op">=</span> qa_stuff.run(query)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="fragment">
+<div class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1"></a>display(Markdown(response))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div class="fragment">
+<div class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1"></a>response <span class="op">=</span> index.query(query, llm<span class="op">=</span>llm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</section></section>
+<section id="acknowledgments" class="title-slide slide level1 center">
+<h1>Acknowledgments</h1>
+<p><em>This tutorial is mainly based on the excellent course <a href="https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/">“LangChain for LLM Application Development”</a> provided by Harrison Chase and Andrew Ng</em></p>
+</section>
+
 <section id="whats-next" class="title-slide slide level1 center" data-background-image="../images/logo.png" data-background-opacity="0.5">
 <h1>What’s next?</h1>
 <ul>
@@ -480,8 +685,6 @@ Jan Kirenz
 <p>Jan Kirenz</p>
 </div>
 </section>
-
-
     </div>
   </div>
 
