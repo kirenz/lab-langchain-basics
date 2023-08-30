@@ -1,0 +1,332 @@
+---
+title: Agents
+title-slide-attributes:
+  data-background-image: ../images/logo.png
+  data-background-size: contain
+  data-background-opacity: "0.5"
+lang: en
+subtitle: LangChain Basics 6
+author: Jan Kirenz
+execute:
+  eval: false
+  echo: true
+highlight-style: github
+format:
+  revealjs: 
+    toc: true
+    toc-depth: 1
+    embed-resources: false
+    theme: [dark, ../custom.scss]  
+    incremental: true
+    transition: slide
+    background-transition: fade
+    transition-speed: slow
+    code-copy: true
+    code-line-numbers: true
+    smaller: false
+    scrollable: true
+    slide-number: c
+    preview-links: auto
+    chalkboard: 
+      buttons: false
+   # logo: ../images/logo.png
+    footer: Jan Kirenz
+---
+
+# LangChain: Agents
+
+Using built in LangChain tools: DuckDuckGo search and Wikipedia
+& defining your own tools
+
+# Setup
+
+## Python
+
+```{python}
+from datetime import date
+from langchain.agents import tool
+import warnings
+from langchain.chat_models import ChatOpenAI
+from langchain.python import PythonREPL
+from langchain.tools.python.tool import PythonREPLTool
+from langchain.agents import AgentType
+from langchain.agents import load_tools, initialize_agent
+from langchain.agents.agent_toolkits import create_python_agent
+import langchain
+import os
+
+from dotenv import load_dotenv, find_dotenv
+_ = load_dotenv(find_dotenv())  # read local .env file
+
+
+llm_model = "gpt-3.5-turbo"
+
+warnings.filterwarnings("ignore")
+```
+
+# Built-in LangChain tools
+
+## Load tools
+
+- OpenAI
+
+```{python}
+llm = ChatOpenAI(temperature=0, model=llm_model)
+```
+
+- Math tool and connection to wikipedia
+
+. . .
+
+```{python}
+tools = load_tools(["llm-math", "wikipedia"], llm=llm)
+```
+
+- Initialize agent 
+
+. . .
+
+```{python}
+
+agent = initialize_agent(
+    tools,
+    llm,
+    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    handle_parsing_errors=True,
+    verbose=True)
+```
+
+
+## Example math question
+
+```{python}
+agent("What is 25% of 300?")
+```
+
+- {'input': 'What is 25% of 300?', 'output': '25% of 300 is 75.0'}
+
+## Steps
+
+```bash
+Steps: I can use the calculator to find the answer to this math question.
+Action: Calculator
+Action Input: 25% of 300
+Observation: Answer: 75.0
+Thought:I now know the final answer
+Final Answer: 25% of 300 is 75.0
+
+> Finished chain.
+```
+
+## Wikipedia example
+
+```{python}
+question = "Tom M. Mitchell is an American computer scientist \
+and the Founders University Professor at Carnegie Mellon University (CMU)\
+what book did he write?"
+
+result = agent(question)
+```
+
+- `Output`: Final Answer: Tom M. Mitchell wrote the book "Machine Learning".
+
+
+## Steps {.smaller}
+
+```bash
+> Entering new  chain...
+I should use Wikipedia to find information about Tom M. Mitchell and his books.
+Action: Wikipedia
+Action Input: Tom M. Mitchell
+Observation: Page: Tom M. Mitchell
+Summary: Tom Michael Mitchell (born August 9, 1951) is an American computer scientist and the Founders University Professor at Carnegie Mellon University (CMU). He is a founder and former Chair of the Machine Learning Department at CMU. Mitchell is known for his contributions to the advancement of machine learning, artificial intelligence, and cognitive neuroscience and is the author of the textbook Machine Learning. He is a member of the United States National Academy of Engineering since 2010. He is also a Fellow of the American Academy of Arts and Sciences, the American Association for the Advancement of Science and a Fellow and past President of the Association for the Advancement of Artificial Intelligence. In October 2018, Mitchell was appointed as the Interim Dean of the School of Computer Science at Carnegie Mellon.
+
+Page: Tom Mitchell (Australian footballer)
+Summary: Thomas Mitchell (born 31 May 1993) is a professional Australian rules footballer playing for the Collingwood Football Club in the Australian Football League (AFL). He previously played for the Sydney Swans from 2012 to 2016, and the Hawthorn Football Club between 2017 and 2022. Mitchell won the Brownlow Medal as the league's best and fairest player in 2018 and set the record for the most disposals in a VFL/AFL match, accruing 54 in a game against Collingwood during that season.
+
+
+Thought:I found the information about Tom M. Mitchell and his book on machine learning.
+Action: Wikipedia
+Action Input: Machine Learning (book)
+Observation: Page: Machine learning
+Summary: Machine learning (ML) is an umbrella term for solving problems for which development of algorithms by human programmers would be cost-prohibitive, and instead the problems are solved by helping machines 'discover' their 'own' algorithms, without needing to be explicitly told what to do by any human-developed algorithms. Recently, generative artificial neural networks have been able to surpass results of many previous approaches. Machine learning approaches have been applied to large language models, computer vision, speech recognition, email filtering, agriculture and medicine, where it is too costly to develop algorithms to perform the needed tasks.The mathematical foundations of ML are provided by mathematical optimization (mathematical programming) methods. Data mining is a related (parallel) field of study, focusing on exploratory data analysis through unsupervised learning.ML is known in its application across business problems under the name predictive analytics. Although not all machine learning is statistically-based, computational statistics is an important source of the field's methods. 
+
+
+
+Page: Outline of machine learning
+Summary: The following outline is provided as an overview of and topical guide to machine learning. Machine learning is a subfield of soft computing within computer science that evolved from the study of pattern recognition and computational learning theory in artificial intelligence. In 1959, Arthur Samuel defined machine learning as a "field of study that gives computers the ability to learn without being explicitly programmed". Machine learning explores the study and construction of algorithms that can learn from and make predictions on data. Such algorithms operate by building a model from an example training set of input observations in order to make data-driven predictions or decisions expressed as outputs, rather than following strictly static program instructions.
+
+Page: Quantum machine learning
+Summary: Quantum machine learning is the integration of quantum algorithms within machine learning programs.The most common use of the term refers to machine learning algorithms for the analysis of classical data executed on a quantum computer, i.e. quantum-enhanced machine learning. While machine learning algorithms are used to compute immense quantities of data, quantum machine learning utilizes qubits and quantum operations or specialized quantum systems to improve computational speed and data storage done by algorithms in a program. This includes hybrid methods that involve both classical and quantum processing, where computationally difficult subroutines are outsourced to a quantum device. These routines can be more complex in nature and executed faster on a quantum computer. Furthermore, quantum algorithms can be used to analyze quantum states instead of classical data.Beyond quantum computing, the term "quantum machine learning" is also associated with classical machine learning methods applied to data generated from quantum experiments (i.e. machine learning of quantum systems), such as learning the phase transitions of a quantum system or creating new quantum experiments.Quantum machine learning also extends to a branch of research that explores methodological and structural similarities between certain physical systems and learning systems, in particular neural networks. For example, some mathematical and numerical techniques from quantum physics are applicable to classical deep learning and vice versa.Furthermore, researchers investigate more abstract notions of learning theory with respect to quantum information, sometimes referred to as "quantum learning theory".
+Thought:I have found the information about Tom M. Mitchell and his book "Machine Learning" on Wikipedia.
+Thought: I now know the final answer.
+Final Answer: Tom M. Mitchell wrote the book "Machine Learning".
+
+> Finished chain.
+```
+
+# Python Agent
+
+## PythonREPLTool
+
+- Agent can execute code
+
+. . .
+
+```{python}
+
+agent = create_python_agent(
+    llm,
+    tool=PythonREPLTool(),
+    verbose=True
+)
+```
+
+## Example data
+
+```{python}
+
+customer_list = [["Harrison", "Chase"],
+                 ["Lang", "Chain"],
+                 ["Dolly", "Too"],
+                 ["Elle", "Elem"],
+                 ["Geoff", "Fusion"],
+                 ["Trance", "Former"],
+                 ["Jen", "Ayai"]
+                 ]
+```
+
+## Task
+
+```{python}
+
+agent.run(f"""Sort these customers by \
+last name and then first name \
+and print the output: {customer_list}""")
+```
+
+
+- `Output`: "[['Jen', 'Ayai'], ['Harrison', 'Chase'], ['Lang', 'Chain'], ['Elle', 'Elem'], ['Geoff', 'Fusion'], ['Trance', 'Former'], ['Dolly', 'Too']]"
+
+## Show steps {.smaller}
+
+```markdown
+> Entering new  chain...
+I can use the `sorted()` function to sort the list of customers. I will need to provide a key function that specifies the sorting order based on last name and then first name.
+Action: Python_REPL
+Action Input: sorted([['Harrison', 'Chase'], ['Lang', 'Chain'], ['Dolly', 'Too'], ['Elle', 'Elem'], ['Geoff', 'Fusion'], ['Trance', 'Former'], ['Jen', 'Ayai']], key=lambda x: (x[1], x[0]))
+Observation: 
+Thought:The customers have been sorted by last name and then first name.
+Final Answer: [['Jen', 'Ayai'], ['Harrison', 'Chase'], ['Lang', 'Chain'], ['Elle', 'Elem'], ['Geoff', 'Fusion'], ['Trance', 'Former'], ['Dolly', 'Too']]
+
+> Finished chain.
+
+## View detailed outputs of the chains
+
+```{python}\
+
+langchain.debug = True
+agent.run(f"""Sort these customers by \
+last name and then first name \
+and print the output: {customer_list}""")
+langchain.debug = False
+```\
+
+```
+
+
+# Define your own Tool
+
+Show current date
+
+## Function
+
+
+```{python}
+
+
+@tool
+def time(text: str) -> str:
+    """Returns todays date, use this for any \
+    questions related to knowing todays date. \
+    The input should always be an empty string, \
+    and this function will always return todays \
+    date - any date mathmatics should occur \
+    outside this function."""
+    return str(date.today())
+
+
+```
+
+## Agent
+
+```{python}
+
+agent = initialize_agent(
+    tools + [time],
+    llm,
+    agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
+    handle_parsing_errors=True,
+    verbose=True)
+```
+
+
+- The agent will sometimes come to the wrong conclusion (agents are a work in progress!). If it does, please try running it again.
+
+## Output
+
+```{python}
+try:
+    result = agent("whats the date today?")
+except:
+    print("exception on external access")
+```
+
+- `Output`: Final Answer: The date today is 2023-08-29.
+
+
+## Steps
+
+```bash
+> Entering new  chain...
+Question: What's the date today?
+Thought: I can use the `time` tool to get the current date.
+Action:
+```
+{
+  "action": "time",
+  "action_input": ""
+}
+```
+Observation: 2023-08-29
+Thought:Could not parse LLM output: I now know the final answer.
+Observation: Invalid or incomplete response
+Thought:I made a mistake in my previous response. I apologize for the confusion. Let me correct it.
+
+
+
+Question: What's the date today?
+Thought: I can use the `time` tool to get the current date.
+Action:
+```
+{
+  "action": "time",
+  "action_input": ""
+}
+```
+
+Observation: 2023-08-29
+Thought:I now know the final answer.
+Final Answer: The date today is 2023-08-29.
+
+> Finished chain.
+
+# Acknowledgments
+
+*This tutorial is mainly based on the excellent course ["LangChain for LLM Application Development"](https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/) provided by Harrison Chase and Andrew Ng*
+
+# What's next? {background-image="../images/logo.png" background-opacity="0.5"}
+
+- **Congratulations! You have completed this tutorial** 👍
+
+**Next, you may want to go back to the [lab's website](https://kirenz.github.io/langchain-basics/)**
