@@ -18,7 +18,8 @@ In this tutorial, you'll learn how to call LLMs, providing prompts and parsing t
 
 ::: {.callout-tip appearance="simple" icon=false}
 - [🖥️ Presentation](slides/1_model_prompt_parser.qmd)
-- [💻 Jupyter Notebook](code/1_model_prompt_parser.ipynb)
+- [💻 Jupyter Notebook](https://colab.research.google.com/github/kirenz/lab-langchain-basics/blob/main/code/1_model_prompt_parser.ipynb)
+
 :::
 
 
@@ -28,7 +29,8 @@ Use memories to store conversations and manage limited context space.
 
 ::: {.callout-tip appearance="simple" icon=false}
 - [🖥️ Presentation](slides/2_memory.qmd)
-- [💻 Jupyter Notebook](code/2_memory.ipynb)
+- [💻 Jupyter Notebook](https://colab.research.google.com/github/kirenz/lab-langchain-basics/blob/main/code/2_memory.ipynb)
+
 :::
 
 ## Chains
@@ -37,7 +39,8 @@ Creating sequences of operations.
 
 ::: {.callout-tip appearance="simple" icon=false}
 - [🖥️ Presentation](slides/3_chains.qmd)
-- [💻 Jupyter Notebook](code/3_chains.ipynb)
+- [💻 Jupyter Notebook](https://colab.research.google.com/github/kirenz/lab-langchain-basics/blob/main/code/3_chains.ipynb)
+
 :::
 
 
@@ -47,7 +50,7 @@ Creating sequences of operations.
 
 ::: {.callout-tip appearance="simple" icon=false}
 - [🖥️ Presentation](slides/4_qa.qmd)
-- [💻 Jupyter Notebook](code/4_qa.ipynb)
+- [💻 Jupyter Notebook](https://colab.research.google.com/github/kirenz/lab-langchain-basics/blob/main/code/4_qa.ipynb)
 :::
 
 
@@ -57,7 +60,8 @@ Example generation, manual evaluation (and debuging), LLM-assisted evaluation & 
 
 ::: {.callout-tip appearance="simple" icon=false}
 - [🖥️ Presentation](slides/5_evaluation.qmd)
-- [💻 Jupyter Notebook](code/5_evaluation.ipynb)
+- [💻 Jupyter Notebook](https://colab.research.google.com/github/kirenz/lab-langchain-basics/blob/main/code/5_evaluation.ipynb)
+
 :::
 
 ## Agents
@@ -66,7 +70,8 @@ Explore the powerful emerging development of LLM as reasoning agents.
 
 ::: {.callout-tip appearance="simple" icon=false}
 - [🖥️ Presentation](slides/6_agents.qmd)
-- [💻 Jupyter Notebook](code/6_agents.ipynb)
+- [💻 Jupyter Notebook](https://colab.research.google.com/github/kirenz/lab-langchain-basics/blob/main/code/6_agents.ipynb)
+
 :::
 
 
