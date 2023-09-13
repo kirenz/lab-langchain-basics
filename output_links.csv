@@ -1,2 +1,7 @@
 Markdown Link
-- [💻 Jupyter Notebook](https://colab.research.google.com/github/kirenz/lab-langchain-basics/blob/main/code/notebook.ipynb)
+- [💻 Jupyter Notebook](https://colab.research.google.com/github/kirenz/lab-langchain-basics/blob/main/code/1_model_prompt_parser.ipynb)
+- [💻 Jupyter Notebook](https://colab.research.google.com/github/kirenz/lab-langchain-basics/blob/main/code/2_memory.ipynb)
+- [💻 Jupyter Notebook](https://colab.research.google.com/github/kirenz/lab-langchain-basics/blob/main/code/4_qa.ipynb)
+- [💻 Jupyter Notebook](https://colab.research.google.com/github/kirenz/lab-langchain-basics/blob/main/code/5_evaluation.ipynb)
+- [💻 Jupyter Notebook](https://colab.research.google.com/github/kirenz/lab-langchain-basics/blob/main/code/6_agents.ipynb)
+- [💻 Jupyter Notebook](https://colab.research.google.com/github/kirenz/lab-langchain-basics/blob/main/code/3_chains.ipynb)
