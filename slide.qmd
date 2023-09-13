@@ -5,8 +5,6 @@ number-sections: true
 
 *The following tutorials are mainly based on the excellent course ["LangChain for LLM Application Development"](https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/) provided by Harrison Chase and Andrew Ng*
 
-Txt
-
 ::: {.callout-note appearance="simple"}
 Take a look at the [slides tutorial](https://kirenz.github.io/lab-toolkit/slides/slides.html#/title-slide) to learn how to use all slide options. 
 
@@ -14,11 +12,66 @@ To download Jupyter Notebooks: Go to the Colab menu and choose "File" > "Downloa
 :::
 
 
-## Txt
+## Models, Prompts and Output Parsers
 
-In this tutorial, you'll learn:
+In this tutorial, you'll learn how to call LLMs, providing prompts and parsing the response.
 
 ::: {.callout-tip appearance="simple" icon=false}
 - [🖥️ Presentation](slides/1_model_prompt_parser.qmd)
-- [💻 Jupyter Notebook]()
+- [💻 Jupyter Notebook](code/1_model_prompt_parser.ipynb)
 :::
+
+
+## Memories for LLMs 
+
+Use memories to store conversations and manage limited context space.
+
+::: {.callout-tip appearance="simple" icon=false}
+- [🖥️ Presentation](slides/2_memory.qmd)
+- [💻 Jupyter Notebook](code/2_memory.ipynb)
+:::
+
+## Chains
+
+Creating sequences of operations. 
+
+::: {.callout-tip appearance="simple" icon=false}
+- [🖥️ Presentation](slides/3_chains.qmd)
+- [💻 Jupyter Notebook](code/3_chains.ipynb)
+:::
+
+
+## Q&A over Documents
+
+ Apply LLMs to your proprietary data and use case requirements.
+
+::: {.callout-tip appearance="simple" icon=false}
+- [🖥️ Presentation](slides/4_qa.qmd)
+- [💻 Jupyter Notebook](code/4_qa.ipynb)
+:::
+
+
+## Evaluation
+
+Example generation, manual evaluation (and debuging), LLM-assisted evaluation & LangChain evaluation platform.
+
+::: {.callout-tip appearance="simple" icon=false}
+- [🖥️ Presentation](slides/5_evaluation.qmd)
+- [💻 Jupyter Notebook](code/5_evaluation.ipynb)
+:::
+
+## Agents
+
+Explore the powerful emerging development of LLM as reasoning agents.
+
+::: {.callout-tip appearance="simple" icon=false}
+- [🖥️ Presentation](slides/6_agents.qmd)
+- [💻 Jupyter Notebook](code/6_agents.ipynb)
+:::
+
+
+## LangChain-Teacher
+
+Learn the basics of LangChain with an interactive chat-based learning interface. The app offers two teaching styles: Instructional, which provides step-by-step instructions, and Interactive lessons with questions, which prompts users with questions to assess their understanding:
+
+[🤖 LangChain Teacher](https://lang-teacher.streamlit.app/)
