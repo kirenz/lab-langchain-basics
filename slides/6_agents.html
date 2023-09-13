@@ -607,18 +607,17 @@ Jan Kirenz
 <span id="cb12-6"><a href="#cb12-6"></a><span class="at">Thought:The customers have been sorted by last name and then first name.</span></span>
 <span id="cb12-7"><a href="#cb12-7"></a><span class="at">Final Answer: [</span><span class="co">[</span><span class="ot">'Jen', 'Ayai'</span><span class="co">]</span><span class="at">, </span><span class="co">[</span><span class="ot">'Harrison', 'Chase'</span><span class="co">]</span><span class="at">, </span><span class="co">[</span><span class="ot">'Lang', 'Chain'</span><span class="co">]</span><span class="at">, </span><span class="co">[</span><span class="ot">'Elle', 'Elem'</span><span class="co">]</span><span class="at">, </span><span class="co">[</span><span class="ot">'Geoff', 'Fusion'</span><span class="co">]</span><span class="at">, </span><span class="co">[</span><span class="ot">'Trance', 'Former'</span><span class="co">]</span><span class="at">, </span><span class="co">[</span><span class="ot">'Dolly', 'Too'</span><span class="co">]</span><span class="at">]</span></span>
 <span id="cb12-8"><a href="#cb12-8"></a></span>
-<span id="cb12-9"><a href="#cb12-9"></a><span class="at">&gt; Finished chain.</span></span>
-<span id="cb12-10"><a href="#cb12-10"></a></span>
-<span id="cb12-11"><a href="#cb12-11"></a><span class="fu">## View detailed outputs of the chains</span></span>
-<span id="cb12-12"><a href="#cb12-12"></a></span>
-<span id="cb12-13"><a href="#cb12-13"></a><span class="in">```{python}\</span></span>
-<span id="cb12-14"><a href="#cb12-14"></a></span>
-<span id="cb12-15"><a href="#cb12-15"></a>langchain.debug <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb12-16"><a href="#cb12-16"></a>agent.run(<span class="ss">f"""Sort these customers by </span><span class="ch">\</span></span>
-<span id="cb12-17"><a href="#cb12-17"></a><span class="ss">last name and then first name </span><span class="ch">\</span></span>
-<span id="cb12-18"><a href="#cb12-18"></a><span class="ss">and print the output: </span><span class="sc">{</span>customer_list<span class="sc">}</span><span class="ss">"""</span>)</span>
-<span id="cb12-19"><a href="#cb12-19"></a>langchain.debug <span class="op">=</span> <span class="va">False</span></span>
-<span id="cb12-20"><a href="#cb12-20"></a>```<span class="op">\</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-9"><a href="#cb12-9"></a><span class="at">&gt; Finished chain.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="view-detailed-outputs-of-the-chains" class="slide level2">
+<h2>View detailed outputs of the chains</h2>
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource qwniexws\ number-lines code-with-copy"><code class="sourceCode"><span id="cb13-1"><a href="#cb13-1"></a></span>
+<span id="cb13-2"><a href="#cb13-2"></a>langchain.debug = True</span>
+<span id="cb13-3"><a href="#cb13-3"></a>agent.run(f"""Sort these customers by \</span>
+<span id="cb13-4"><a href="#cb13-4"></a>last name and then first name \</span>
+<span id="cb13-5"><a href="#cb13-5"></a>and print the output: {customer_list}""")</span>
+<span id="cb13-6"><a href="#cb13-6"></a>langchain.debug = False</span>
+<span id="cb13-7"><a href="#cb13-7"></a>```\</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section></section>
 <section>
 <section id="define-your-own-tool" class="title-slide slide level1 center">
@@ -628,26 +627,26 @@ Jan Kirenz
 <section id="function" class="slide level2">
 <h2>Function</h2>
 <div class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1"></a><span class="at">@tool</span></span>
-<span id="cb13-2"><a href="#cb13-2"></a><span class="kw">def</span> time(text: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
-<span id="cb13-3"><a href="#cb13-3"></a>    <span class="co">"""Returns todays date, use this for any </span><span class="ch">\</span></span>
-<span id="cb13-4"><a href="#cb13-4"></a><span class="co">    questions related to knowing todays date. </span><span class="ch">\</span></span>
-<span id="cb13-5"><a href="#cb13-5"></a><span class="co">    The input should always be an empty string, </span><span class="ch">\</span></span>
-<span id="cb13-6"><a href="#cb13-6"></a><span class="co">    and this function will always return todays </span><span class="ch">\</span></span>
-<span id="cb13-7"><a href="#cb13-7"></a><span class="co">    date - any date mathmatics should occur </span><span class="ch">\</span></span>
-<span id="cb13-8"><a href="#cb13-8"></a><span class="co">    outside this function."""</span></span>
-<span id="cb13-9"><a href="#cb13-9"></a>    <span class="cf">return</span> <span class="bu">str</span>(date.today())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a><span class="at">@tool</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a><span class="kw">def</span> time(text: <span class="bu">str</span>) <span class="op">-&gt;</span> <span class="bu">str</span>:</span>
+<span id="cb14-3"><a href="#cb14-3"></a>    <span class="co">"""Returns todays date, use this for any </span><span class="ch">\</span></span>
+<span id="cb14-4"><a href="#cb14-4"></a><span class="co">    questions related to knowing todays date. </span><span class="ch">\</span></span>
+<span id="cb14-5"><a href="#cb14-5"></a><span class="co">    The input should always be an empty string, </span><span class="ch">\</span></span>
+<span id="cb14-6"><a href="#cb14-6"></a><span class="co">    and this function will always return todays </span><span class="ch">\</span></span>
+<span id="cb14-7"><a href="#cb14-7"></a><span class="co">    date - any date mathmatics should occur </span><span class="ch">\</span></span>
+<span id="cb14-8"><a href="#cb14-8"></a><span class="co">    outside this function."""</span></span>
+<span id="cb14-9"><a href="#cb14-9"></a>    <span class="cf">return</span> <span class="bu">str</span>(date.today())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="agent" class="slide level2">
 <h2>Agent</h2>
 <div class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1"></a>agent <span class="op">=</span> initialize_agent(</span>
-<span id="cb14-2"><a href="#cb14-2"></a>    tools <span class="op">+</span> [time],</span>
-<span id="cb14-3"><a href="#cb14-3"></a>    llm,</span>
-<span id="cb14-4"><a href="#cb14-4"></a>    agent<span class="op">=</span>AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,</span>
-<span id="cb14-5"><a href="#cb14-5"></a>    handle_parsing_errors<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb14-6"><a href="#cb14-6"></a>    verbose<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a>agent <span class="op">=</span> initialize_agent(</span>
+<span id="cb15-2"><a href="#cb15-2"></a>    tools <span class="op">+</span> [time],</span>
+<span id="cb15-3"><a href="#cb15-3"></a>    llm,</span>
+<span id="cb15-4"><a href="#cb15-4"></a>    agent<span class="op">=</span>AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,</span>
+<span id="cb15-5"><a href="#cb15-5"></a>    handle_parsing_errors<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb15-6"><a href="#cb15-6"></a>    verbose<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
 <li class="fragment">The agent will sometimes come to the wrong conclusion (agents are a work in progress!). If it does, please try running it again.</li>
@@ -656,10 +655,10 @@ Jan Kirenz
 <section id="output" class="slide level2">
 <h2>Output</h2>
 <div class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1"></a><span class="cf">try</span>:</span>
-<span id="cb15-2"><a href="#cb15-2"></a>    result <span class="op">=</span> agent(<span class="st">"whats the date today?"</span>)</span>
-<span id="cb15-3"><a href="#cb15-3"></a><span class="cf">except</span>:</span>
-<span id="cb15-4"><a href="#cb15-4"></a>    <span class="bu">print</span>(<span class="st">"exception on external access"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1"></a><span class="cf">try</span>:</span>
+<span id="cb16-2"><a href="#cb16-2"></a>    result <span class="op">=</span> agent(<span class="st">"whats the date today?"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3"></a><span class="cf">except</span>:</span>
+<span id="cb16-4"><a href="#cb16-4"></a>    <span class="bu">print</span>(<span class="st">"exception on external access"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
 <li class="fragment"><code>Output</code>: Final Answer: The date today is 2023-08-29.</li>
@@ -667,26 +666,38 @@ Jan Kirenz
 </section>
 <section id="steps-2" class="slide level2">
 <h2>Steps</h2>
-<div class="sourceCode" id="cb16"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1"></a><span class="op">&gt;</span> Entering <span class="ex">new</span>  chain...</span>
-<span id="cb16-2"><a href="#cb16-2"></a><span class="ex">Question:</span> What<span class="st">'s the date today?</span></span>
-<span id="cb16-3"><a href="#cb16-3"></a><span class="st">Thought: I can use the `time` tool to get the current date.</span></span>
-<span id="cb16-4"><a href="#cb16-4"></a><span class="st">Action:</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>{ “action”: “time”, “action_input”: “” }</p>
-<pre><code>Observation: 2023-08-29
-Thought:Could not parse LLM output: I now know the final answer.
-Observation: Invalid or incomplete response
-Thought:I made a mistake in my previous response. I apologize for the confusion. Let me correct it.
-
-
-
-Question: What's the date today?
-Thought: I can use the `time` tool to get the current date.
-Action:</code></pre>
-<p>{ “action”: “time”, “action_input”: “” } ```</p>
-<p>Observation: 2023-08-29 Thought:I now know the final answer. Final Answer: The date today is 2023-08-29.</p>
-<blockquote>
-<p>Finished chain.</p>
-</blockquote>
+<div class="sourceCode" id="cb17"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1"></a><span class="op">&gt;</span> Entering <span class="ex">new</span>  chain...</span>
+<span id="cb17-2"><a href="#cb17-2"></a><span class="ex">Question:</span> What<span class="st">'s the date today?</span></span>
+<span id="cb17-3"><a href="#cb17-3"></a><span class="st">Thought: I can use the `time` tool to get the current date.</span></span>
+<span id="cb17-4"><a href="#cb17-4"></a><span class="st">Action:</span></span>
+<span id="cb17-5"><a href="#cb17-5"></a><span class="st">/```</span></span>
+<span id="cb17-6"><a href="#cb17-6"></a><span class="st">{</span></span>
+<span id="cb17-7"><a href="#cb17-7"></a><span class="st">  "action": "time",</span></span>
+<span id="cb17-8"><a href="#cb17-8"></a><span class="st">  "action_input": ""</span></span>
+<span id="cb17-9"><a href="#cb17-9"></a><span class="st">}</span></span>
+<span id="cb17-10"><a href="#cb17-10"></a><span class="st">/```</span></span>
+<span id="cb17-11"><a href="#cb17-11"></a><span class="st">Observation: 2023-08-29</span></span>
+<span id="cb17-12"><a href="#cb17-12"></a><span class="st">Thought:Could not parse LLM output: I now know the final answer.</span></span>
+<span id="cb17-13"><a href="#cb17-13"></a><span class="st">Observation: Invalid or incomplete response</span></span>
+<span id="cb17-14"><a href="#cb17-14"></a><span class="st">Thought:I made a mistake in my previous response. I apologize for the confusion. Let me correct it.</span></span>
+<span id="cb17-15"><a href="#cb17-15"></a></span>
+<span id="cb17-16"><a href="#cb17-16"></a></span>
+<span id="cb17-17"><a href="#cb17-17"></a></span>
+<span id="cb17-18"><a href="#cb17-18"></a><span class="st">Question: What'</span>s the date today<span class="pp">?</span></span>
+<span id="cb17-19"><a href="#cb17-19"></a><span class="ex">Thought:</span> I can use the <span class="kw">`</span><span class="bu">time</span><span class="kw">`</span> tool to get the current date.</span>
+<span id="cb17-20"><a href="#cb17-20"></a><span class="ex">Action:</span></span>
+<span id="cb17-21"><a href="#cb17-21"></a><span class="ex">/</span><span class="kw">```</span></span>
+<span id="cb17-22"><a href="#cb17-22"></a><span class="kw">{</span></span>
+<span id="cb17-23"><a href="#cb17-23"></a>  <span class="st">"action"</span><span class="ex">:</span> <span class="st">"time"</span>,</span>
+<span id="cb17-24"><a href="#cb17-24"></a>  <span class="st">"action_input"</span><span class="ex">:</span> <span class="st">""</span></span>
+<span id="cb17-25"><a href="#cb17-25"></a><span class="kw">}</span></span>
+<span id="cb17-26"><a href="#cb17-26"></a><span class="ex">/</span><span class="kw">```</span></span>
+<span id="cb17-27"><a href="#cb17-27"></a></span>
+<span id="cb17-28"><a href="#cb17-28"></a><span class="ex">Observation:</span> 2023-08-29</span>
+<span id="cb17-29"><a href="#cb17-29"></a><span class="ex">Thought:I</span> now know the final answer.</span>
+<span id="cb17-30"><a href="#cb17-30"></a><span class="ex">Final</span> Answer: The date today is 2023-08-29.</span>
+<span id="cb17-31"><a href="#cb17-31"></a></span>
+<span id="cb17-32"><a href="#cb17-32"></a><span class="op">&gt;</span> Finished <span class="ex">chain.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section></section>
 <section id="acknowledgments" class="title-slide slide level1 center">
 <h1>Acknowledgments</h1>
@@ -695,9 +706,7 @@ Action:</code></pre>
 
 <section id="whats-next" class="title-slide slide level1 center" data-background-image="../images/logo.png" data-background-opacity="0.5">
 <h1>What’s next?</h1>
-<ul>
-<li class="fragment"><strong>Congratulations! You have completed this tutorial</strong> 👍</li>
-</ul>
+<p><strong>Congratulations! You have completed this tutorial</strong> 👍</p>
 <p><strong>Next, you may want to go back to the <a href="https://kirenz.github.io/langchain-basics/">lab’s website</a></strong></p>
 
 <div class="footer footer-default">

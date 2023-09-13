@@ -2,50 +2,66 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://github.com/kirenz/lab-langchain-basics/requirements.html</loc>
-    <lastmod>2023-08-30T07:50:05.946Z</lastmod>
+    <lastmod>2023-09-13T07:16:41.831Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/kirenz/lab-langchain-basics/slides/4_qa.html</loc>
-    <lastmod>2023-08-30T07:50:04.478Z</lastmod>
+    <lastmod>2023-09-13T07:16:40.631Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/kirenz/lab-langchain-basics/slides/5_evaluation.html</loc>
-    <lastmod>2023-08-30T07:50:03.186Z</lastmod>
-  </url>
-  <url>
-    <loc>https://github.com/kirenz/lab-langchain-basics/slides/slides.html</loc>
-    <lastmod>2023-08-30T07:50:01.534Z</lastmod>
-  </url>
-  <url>
-    <loc>https://github.com/kirenz/lab-langchain-basics/code/notebook.html</loc>
-    <lastmod>2023-08-30T07:49:59.081Z</lastmod>
-  </url>
-  <url>
-    <loc>https://github.com/kirenz/lab-langchain-basics/assignments.html</loc>
-    <lastmod>2023-08-30T07:49:58.345Z</lastmod>
-  </url>
-  <url>
-    <loc>https://github.com/kirenz/lab-langchain-basics/slide.html</loc>
-    <lastmod>2023-08-30T07:49:57.633Z</lastmod>
-  </url>
-  <url>
-    <loc>https://github.com/kirenz/lab-langchain-basics/index.html</loc>
-    <lastmod>2023-08-30T07:49:58.725Z</lastmod>
+    <lastmod>2023-09-13T07:16:39.387Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/kirenz/lab-langchain-basics/slides/1_model_prompt_parser.html</loc>
-    <lastmod>2023-08-30T07:50:00.134Z</lastmod>
+    <lastmod>2023-09-13T07:16:38.043Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/kirenz/lab-langchain-basics/code/1_model_prompt_parser.html</loc>
+    <lastmod>2023-09-13T07:16:36.467Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/kirenz/lab-langchain-basics/code/3_chains.html</loc>
+    <lastmod>2023-09-13T07:16:35.319Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/kirenz/lab-langchain-basics/code/2_memory.html</loc>
+    <lastmod>2023-09-13T07:16:34.091Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/kirenz/lab-langchain-basics/assignments.html</loc>
+    <lastmod>2023-09-13T07:16:33.291Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/kirenz/lab-langchain-basics/slide.html</loc>
+    <lastmod>2023-09-13T07:16:32.695Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/kirenz/lab-langchain-basics/index.html</loc>
+    <lastmod>2023-09-13T07:16:33.615Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/kirenz/lab-langchain-basics/code/5_evaluation.html</loc>
+    <lastmod>2023-09-13T07:16:34.799Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/kirenz/lab-langchain-basics/code/4_qa.html</loc>
+    <lastmod>2023-09-13T07:16:35.751Z</lastmod>
+  </url>
+  <url>
+    <loc>https://github.com/kirenz/lab-langchain-basics/code/6_agents.html</loc>
+    <lastmod>2023-09-13T07:16:37.183Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/kirenz/lab-langchain-basics/slides/2_memory.html</loc>
-    <lastmod>2023-08-30T07:50:02.202Z</lastmod>
+    <lastmod>2023-09-13T07:16:38.635Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/kirenz/lab-langchain-basics/slides/6_agents.html</loc>
-    <lastmod>2023-08-30T07:50:03.870Z</lastmod>
+    <lastmod>2023-09-13T07:16:40.143Z</lastmod>
   </url>
   <url>
     <loc>https://github.com/kirenz/lab-langchain-basics/slides/3_chains.html</loc>
-    <lastmod>2023-08-30T07:50:05.194Z</lastmod>
+    <lastmod>2023-09-13T07:16:41.203Z</lastmod>
   </url>
 </urlset>

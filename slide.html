@@ -114,7 +114,13 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#txt" id="toc-txt" class="nav-link active" data-scroll-target="#txt"><span class="header-section-number">1</span> Txt</a></li>
+  <li><a href="#models-prompts-and-output-parsers" id="toc-models-prompts-and-output-parsers" class="nav-link active" data-scroll-target="#models-prompts-and-output-parsers"><span class="header-section-number">1</span> Models, Prompts and Output Parsers</a></li>
+  <li><a href="#memories-for-llms" id="toc-memories-for-llms" class="nav-link" data-scroll-target="#memories-for-llms"><span class="header-section-number">2</span> Memories for LLMs</a></li>
+  <li><a href="#chains" id="toc-chains" class="nav-link" data-scroll-target="#chains"><span class="header-section-number">3</span> Chains</a></li>
+  <li><a href="#qa-over-documents" id="toc-qa-over-documents" class="nav-link" data-scroll-target="#qa-over-documents"><span class="header-section-number">4</span> Q&amp;A over Documents</a></li>
+  <li><a href="#evaluation" id="toc-evaluation" class="nav-link" data-scroll-target="#evaluation"><span class="header-section-number">5</span> Evaluation</a></li>
+  <li><a href="#agents" id="toc-agents" class="nav-link" data-scroll-target="#agents"><span class="header-section-number">6</span> Agents</a></li>
+  <li><a href="#langchain-teacher" id="toc-langchain-teacher" class="nav-link" data-scroll-target="#langchain-teacher"><span class="header-section-number">7</span> LangChain-Teacher</a></li>
   </ul>
 </nav>
     </div>
@@ -139,7 +145,6 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 <p><em>The following tutorials are mainly based on the excellent course <a href="https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/">“LangChain for LLM Application Development”</a> provided by Harrison Chase and Andrew Ng</em></p>
-<p>Txt</p>
 <div class="callout callout-style-simple callout-note">
 <div class="callout-body d-flex">
 <div class="callout-icon-container">
@@ -151,9 +156,9 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </div>
 </div>
-<section id="txt" class="level2" data-number="1">
-<h2 data-number="1" class="anchored" data-anchor-id="txt"><span class="header-section-number">1</span> Txt</h2>
-<p>In this tutorial, you’ll learn:</p>
+<section id="models-prompts-and-output-parsers" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="models-prompts-and-output-parsers"><span class="header-section-number">1</span> Models, Prompts and Output Parsers</h2>
+<p>In this tutorial, you’ll learn how to call LLMs, providing prompts and parsing the response.</p>
 <div class="callout callout-style-simple callout-tip no-icon">
 <div class="callout-body d-flex">
 <div class="callout-icon-container">
@@ -162,11 +167,101 @@ ul.task-list li input[type="checkbox"] {
 <div class="callout-body-container">
 <ul>
 <li><a href="./slides/1_model_prompt_parser.html">🖥️ Presentation</a></li>
-<li><a href="">💻 Jupyter Notebook</a></li>
+<li><a href="./code/1_model_prompt_parser.html">💻 Jupyter Notebook</a></li>
 </ul>
 </div>
 </div>
 </div>
+</section>
+<section id="memories-for-llms" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="memories-for-llms"><span class="header-section-number">2</span> Memories for LLMs</h2>
+<p>Use memories to store conversations and manage limited context space.</p>
+<div class="callout callout-style-simple callout-tip no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<ul>
+<li><a href="./slides/2_memory.html">🖥️ Presentation</a></li>
+<li><a href="./code/2_memory.html">💻 Jupyter Notebook</a></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="chains" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="chains"><span class="header-section-number">3</span> Chains</h2>
+<p>Creating sequences of operations.</p>
+<div class="callout callout-style-simple callout-tip no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<ul>
+<li><a href="./slides/3_chains.html">🖥️ Presentation</a></li>
+<li><a href="./code/3_chains.html">💻 Jupyter Notebook</a></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="qa-over-documents" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="qa-over-documents"><span class="header-section-number">4</span> Q&amp;A over Documents</h2>
+<p>Apply LLMs to your proprietary data and use case requirements.</p>
+<div class="callout callout-style-simple callout-tip no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<ul>
+<li><a href="./slides/4_qa.html">🖥️ Presentation</a></li>
+<li><a href="./code/4_qa.html">💻 Jupyter Notebook</a></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="evaluation" class="level2" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="evaluation"><span class="header-section-number">5</span> Evaluation</h2>
+<p>Example generation, manual evaluation (and debuging), LLM-assisted evaluation &amp; LangChain evaluation platform.</p>
+<div class="callout callout-style-simple callout-tip no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<ul>
+<li><a href="./slides/5_evaluation.html">🖥️ Presentation</a></li>
+<li><a href="./code/5_evaluation.html">💻 Jupyter Notebook</a></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="agents" class="level2" data-number="6">
+<h2 data-number="6" class="anchored" data-anchor-id="agents"><span class="header-section-number">6</span> Agents</h2>
+<p>Explore the powerful emerging development of LLM as reasoning agents.</p>
+<div class="callout callout-style-simple callout-tip no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<ul>
+<li><a href="./slides/6_agents.html">🖥️ Presentation</a></li>
+<li><a href="./code/6_agents.html">💻 Jupyter Notebook</a></li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="langchain-teacher" class="level2" data-number="7">
+<h2 data-number="7" class="anchored" data-anchor-id="langchain-teacher"><span class="header-section-number">7</span> LangChain-Teacher</h2>
+<p>Learn the basics of LangChain with an interactive chat-based learning interface. The app offers two teaching styles: Instructional, which provides step-by-step instructions, and Interactive lessons with questions, which prompts users with questions to assess their understanding:</p>
+<p><a href="https://lang-teacher.streamlit.app/">🤖 LangChain Teacher</a></p>
 
 
 </section>
