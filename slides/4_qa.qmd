@@ -284,15 +284,12 @@ response = index.query(query, llm=llm)
 ```
 
 
-
-
-
 # Acknowledgments
 
 *This tutorial is mainly based on the excellent course ["LangChain for LLM Application Development"](https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/) provided by Harrison Chase and Andrew Ng*
 
 # What's next? {background-image="../images/logo.png" background-opacity="0.5"}
 
-- **Congratulations! You have completed this tutorial** 👍
+**Congratulations! You have completed this tutorial** 👍
 
 **Next, you may want to go back to the [lab's website](https://kirenz.github.io/langchain-basics/)**
