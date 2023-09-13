@@ -220,6 +220,7 @@ Thought:The customers have been sorted by last name and then first name.
 Final Answer: [['Jen', 'Ayai'], ['Harrison', 'Chase'], ['Lang', 'Chain'], ['Elle', 'Elem'], ['Geoff', 'Fusion'], ['Trance', 'Former'], ['Dolly', 'Too']]
 
 > Finished chain.
+```
 
 ## View detailed outputs of the chains
 
@@ -292,12 +293,12 @@ except:
 Question: What's the date today?
 Thought: I can use the `time` tool to get the current date.
 Action:
-```
+/```
 {
   "action": "time",
   "action_input": ""
 }
-```
+/```
 Observation: 2023-08-29
 Thought:Could not parse LLM output: I now know the final answer.
 Observation: Invalid or incomplete response
@@ -308,25 +309,27 @@ Thought:I made a mistake in my previous response. I apologize for the confusion.
 Question: What's the date today?
 Thought: I can use the `time` tool to get the current date.
 Action:
-```
+/```
 {
   "action": "time",
   "action_input": ""
 }
-```
+/```
 
 Observation: 2023-08-29
 Thought:I now know the final answer.
 Final Answer: The date today is 2023-08-29.
 
 > Finished chain.
+```
 
 # Acknowledgments
 
 *This tutorial is mainly based on the excellent course ["LangChain for LLM Application Development"](https://www.deeplearning.ai/short-courses/langchain-for-llm-application-development/) provided by Harrison Chase and Andrew Ng*
 
+
 # What's next? {background-image="../images/logo.png" background-opacity="0.5"}
 
-- **Congratulations! You have completed this tutorial** 👍
+**Congratulations! You have completed this tutorial** 👍
 
 **Next, you may want to go back to the [lab's website](https://kirenz.github.io/langchain-basics/)**
