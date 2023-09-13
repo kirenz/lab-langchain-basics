@@ -14,8 +14,7 @@ In this lab you will gain skills in expanding the use cases and capabilities of 
 Make sure you meet all the [requirements](/requirements.qmd) and have read the lecture [slides](/slide.qmd) before you start with the [assignments](/assignments.qmd) 
 :::
 
-
-In this course you will learn and get experience with the following topics:
+In this lab you will learn and get experience with the following topics:
 
 - **Models, Prompts and Parsers**: calling LLMs, providing prompts and parsing the response
 - **Memories for LLMs**: memories to store conversations and manage limited context space
@@ -23,7 +22,7 @@ In this course you will learn and get experience with the following topics:
 - **Question Answering over Documents**: apply LLMs to your proprietary data and use case requirements
 - **Agents**: explore the powerful emerging development of LLM as reasoning agents.
 
-At the end of the course, you will have a model that can serve as a starting point for your own exploration of diffusion models for your applications.
+At the end of the course, you will have some templates that can serve as a starting point for your own exploration of LLMs for your applications.
 
 ---
 
