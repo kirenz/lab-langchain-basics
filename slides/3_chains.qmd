@@ -459,4 +459,4 @@ chain.run("Why does every cell in our body contain DNA?")
 
 **Congratulations! You have completed this tutorial** 👍
 
-**Next, you may want to go back to the [lab's website](https://kirenz.github.io/langchain-basics/)**
+**Next, you may want to go back to the [lab's website](https://kirenz.github.io/lab-langchain-basics/)**
