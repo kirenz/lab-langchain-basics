@@ -35,11 +35,8 @@ format:
 
 # LangChain: Models, Prompts and Output Parsers
 
-* Direct API calls to OpenAI
-* API calls through LangChain:
-    * Prompts
-    * Models
-    * Output parsers
+In this tutorial, you'll learn how to call LLMs, providing prompts and parsing the response.
+
 
 # Setup
 
@@ -57,7 +54,7 @@ import os
 import openai
 
 from dotenv import load_dotenv, find_dotenv
-_ = load_dotenv(find_dotenv())  # read local .env file
+_ = load_dotenv(find_dotenv())  
 openai.api_key = os.environ['OPENAI_API_KEY']
 ```
 
@@ -67,7 +64,8 @@ openai.api_key = os.environ['OPENAI_API_KEY']
 
 ## Helper function: get_completion
 
-- Let's start with a direct API calls to OpenAI.
+- Let's start with a direct API call to OpenAI.
+- We don't use LangChain
 
 . . .
 
@@ -153,9 +151,15 @@ Let's try how we can do the same using LangChain.
 ## Model
 
 ```{python}
-# To control the randomness and creativity of the generated
-# text by an LLM, use temperature = 0.0
+llm_model = "gpt-3.5-turbo"
+
 chat = ChatOpenAI(temperature=0.0, model=llm_model)
+
+```
+
+. . .
+
+```{python}
 chat
 ```
 
@@ -385,6 +389,12 @@ print(prompt_template)
 ```{python}
 messages = prompt_template.format_messages(text=customer_review)
 chat = ChatOpenAI(temperature=0.0, model=llm_model)
+
+```
+
+. . .
+
+```{python}
 response = chat(messages)
 print(response.content)
 ```
@@ -417,6 +427,7 @@ type(response.content)
 response.content.get('gift')
 ```
 
+. . .
 
 ```{python}
 ---------------------------------------------------------------------------
@@ -490,7 +501,7 @@ print(format_instructions)
 
 
 
-## Review template 2
+## Review template 2 {.smaller}
 
 
 ```{python}
@@ -595,6 +606,7 @@ output_dict.get('delivery_days')
 ```
 
 - 2
+
 
 # Acknowledgments
 
