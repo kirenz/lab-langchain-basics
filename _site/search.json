@@ -4,14 +4,14 @@
     "href": "slides/1_model_prompt_parser.html#python",
     "title": "Models, Prompts and Output Parsers",
     "section": "Python",
-    "text": "Python\n\nfrom langchain.output_parsers import StructuredOutputParser\nfrom langchain.output_parsers import ResponseSchema\nfrom langchain.prompts import ChatPromptTemplate\nfrom langchain.chat_models import ChatOpenAI\nimport datetime\nimport os\nimport openai\n\nfrom dotenv import load_dotenv, find_dotenv\n_ = load_dotenv(find_dotenv())  # read local .env file\nopenai.api_key = os.environ['OPENAI_API_KEY']"
+    "text": "Python\n\nfrom langchain.output_parsers import StructuredOutputParser\nfrom langchain.output_parsers import ResponseSchema\nfrom langchain.prompts import ChatPromptTemplate\nfrom langchain.chat_models import ChatOpenAI\nimport datetime\nimport os\nimport openai\n\nfrom dotenv import load_dotenv, find_dotenv\n_ = load_dotenv(find_dotenv())  \nopenai.api_key = os.environ['OPENAI_API_KEY']"
   },
   {
     "objectID": "slides/1_model_prompt_parser.html#helper-function-get_completion",
     "href": "slides/1_model_prompt_parser.html#helper-function-get_completion",
     "title": "Models, Prompts and Output Parsers",
     "section": "Helper function: get_completion",
-    "text": "Helper function: get_completion\n\nLet’s start with a direct API calls to OpenAI.\n\n\n\nllm_model = \"gpt-3.5-turbo\"\n\n\ndef get_completion(prompt, model=llm_model):\n    messages = [{\"role\": \"user\", \"content\": prompt}]\n    response = openai.ChatCompletion.create(\n        model=model,\n        messages=messages,\n        temperature=0,\n    )\n    return response.choices[0].message[\"content\"]"
+    "text": "Helper function: get_completion\n\nLet’s start with a direct API call to OpenAI.\nWe don’t use LangChain\n\n\n\nllm_model = \"gpt-3.5-turbo\"\n\n\ndef get_completion(prompt, model=llm_model):\n    messages = [{\"role\": \"user\", \"content\": prompt}]\n    response = openai.ChatCompletion.create(\n        model=model,\n        messages=messages,\n        temperature=0,\n    )\n    return response.choices[0].message[\"content\"]"
   },
   {
     "objectID": "slides/1_model_prompt_parser.html#example",
@@ -46,7 +46,7 @@
     "href": "slides/1_model_prompt_parser.html#model",
     "title": "Models, Prompts and Output Parsers",
     "section": "Model",
-    "text": "Model\n\n# To control the randomness and creativity of the generated\n# text by an LLM, use temperature = 0.0\nchat = ChatOpenAI(temperature=0.0, model=llm_model)\nchat\n\n\nChatOpenAI(cache=None, verbose=False, callbacks=None, callback_manager=None, tags=None, metadata=None, client=&lt;class ‘openai.api_resources.chat_completion.ChatCompletion’&gt;, model_name=‘gpt-3.5-turbo’, temperature=0.0, model_kwargs={}, openai_api_key=‘xxx’, openai_api_base=’‘, openai_organization=’xxx’, openai_proxy=’’, request_timeout=None, max_retries=6, streaming=False, n=1, max_tokens=None, tiktoken_model_name=None)"
+    "text": "Model\n\nllm_model = \"gpt-3.5-turbo\"\n\nchat = ChatOpenAI(temperature=0.0, model=llm_model)\n\n\n\nchat\n\n\nChatOpenAI(cache=None, verbose=False, callbacks=None, callback_manager=None, tags=None, metadata=None, client=&lt;class ‘openai.api_resources.chat_completion.ChatCompletion’&gt;, model_name=‘gpt-3.5-turbo’, temperature=0.0, model_kwargs={}, openai_api_key=‘xxx’, openai_api_base=’‘, openai_organization=’xxx’, openai_proxy=’’, request_timeout=None, max_retries=6, streaming=False, n=1, max_tokens=None, tiktoken_model_name=None)"
   },
   {
     "objectID": "slides/1_model_prompt_parser.html#define-prompt-template",
@@ -137,14 +137,14 @@
     "href": "slides/1_model_prompt_parser.html#response",
     "title": "Models, Prompts and Output Parsers",
     "section": "Response",
-    "text": "Response\n\nmessages = prompt_template.format_messages(text=customer_review)\nchat = ChatOpenAI(temperature=0.0, model=llm_model)\nresponse = chat(messages)\nprint(response.content)\n\n\n{\n  \"gift\": false,\n  \"delivery_days\": 2,\n  \"price_value\": [\"It's slightly more expensive than the other leaf blowers out there, but I think it's worth it for the extra features.\"],\n  \"text\": \"This leaf blower is pretty amazing. It has four settings:candle blower, gentle breeze, windy city, and tornado. It arrived in two days, just in time for my wife's anniversary present. I think my wife liked it so much she was speechless. So far I've been the only one using it, and I've been using it every other morning to clear the leaves on our lawn. It's slightly more expensive than the other leaf blowers out there, but I think it's worth it for the extra features.\"\n}"
+    "text": "Response\n\nmessages = prompt_template.format_messages(text=customer_review)\nchat = ChatOpenAI(temperature=0.0, model=llm_model)\n\n\n\nresponse = chat(messages)\nprint(response.content)\n\n\n{\n  \"gift\": false,\n  \"delivery_days\": 2,\n  \"price_value\": [\"It's slightly more expensive than the other leaf blowers out there, but I think it's worth it for the extra features.\"],\n  \"text\": \"This leaf blower is pretty amazing. It has four settings:candle blower, gentle breeze, windy city, and tornado. It arrived in two days, just in time for my wife's anniversary present. I think my wife liked it so much she was speechless. So far I've been the only one using it, and I've been using it every other morning to clear the leaves on our lawn. It's slightly more expensive than the other leaf blowers out there, but I think it's worth it for the extra features.\"\n}"
   },
   {
     "objectID": "slides/1_model_prompt_parser.html#inspect-response",
     "href": "slides/1_model_prompt_parser.html#inspect-response",
     "title": "Models, Prompts and Output Parsers",
     "section": "Inspect response",
-    "text": "Inspect response\n\ntype(response.content)\n\n\nstr\n\n\n\n# You will get an error by running this line of code\n# because'gift' is not a dictionary\n# 'gift' is a string\nresponse.content.get('gift')\n\n\n---------------------------------------------------------------------------\nAttributeError                            Traceback (most recent call last)\n/Users/jankirenz/labs/lab-langchain-basics/slides/1_model_prompt_parser.qmd in line 1\n----&gt; 342 response.content.get('gift')\n\nAttributeError: 'str' object has no attribute 'get'"
+    "text": "Inspect response\n\ntype(response.content)\n\n\nstr\n\n\n\n# You will get an error by running this line of code\n# because'gift' is not a dictionary\n# 'gift' is a string\nresponse.content.get('gift')\n\n\n\n\n---------------------------------------------------------------------------\nAttributeError                            Traceback (most recent call last)\n/Users/jankirenz/labs/lab-langchain-basics/slides/1_model_prompt_parser.qmd in line 1\n----&gt; 342 response.content.get('gift')\n\nAttributeError: 'str' object has no attribute 'get'"
   },
   {
     "objectID": "slides/1_model_prompt_parser.html#parse-output-into-dictionary-1",
